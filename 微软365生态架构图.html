@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Microsoft 365 生态架构图</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0a0c10;
+    color: #e8eaf0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    min-height: 100vh;
+    padding: 32px 24px 60px;
+  }
+
+  /* ── Header ── */
+  .header {
+    text-align: center;
+    margin-bottom: 36px;
+  }
+  .ms-logo {
+    display: inline-grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3px;
+    margin-bottom: 14px;
+  }
+  .ms-logo span {
+    width: 18px; height: 18px; display: block; border-radius: 1px;
+  }
+  .ms-logo .r { background: #f25022; }
+  .ms-logo .g { background: #7fba00; }
+  .ms-logo .b { background: #00a4ef; }
+  .ms-logo .y { background: #ffb900; }
+  h1 { font-size: 28px; font-weight: 700; letter-spacing: .5px; margin-bottom: 8px; }
+  .subtitle { font-size: 13px; color: #8892a4; letter-spacing: 1px; }
+
+  /* ── Layout ── */
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr 240px;
+    gap: 16px;
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+
+  /* ── Main Column ── */
+  .main-col { display: flex; flex-direction: column; gap: 14px; }
+
+  /* ── Layer Card ── */
+  .layer {
+    background: #141820;
+    border: 1px solid #252d3d;
+    border-radius: 14px;
+    padding: 20px 22px 22px;
+    transition: border-color .2s;
+  }
+  .layer:hover { border-color: #3a4a6a; }
+
+  .layer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .layer-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: #a0b0cc;
+    text-transform: uppercase;
+  }
+  .layer-icon { font-size: 16px; }
+  .tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tag {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    border: 1px solid #2e3a50;
+    color: #7a8fa8;
+    background: #1a2233;
+    white-space: nowrap;
+  }
+  .revenue-badge {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 11px;
+    color: #5b9bd5;
+    background: #101c2e;
+    border: 1px solid #1e3555;
+    border-radius: 8px;
+    padding: 5px 12px;
+  }
+  .revenue-badge .icon { font-size: 14px; }
+  .revenue-label { color: #6a7a90; font-size: 10px; margin-right: 2px; }
+
+  /* ── Section within layer ── */
+  .section-label {
+    font-size: 11px;
+    color: #5a6a80;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    margin-top: 4px;
+  }
+  .section-divider {
+    border: none;
+    border-top: 1px solid #1e2838;
+    margin: 16px 0;
+  }
+
+  /* ── App Grid ── */
+  .app-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  /* ── App Card ── */
+  .app-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #1c2435;
+    border: 1px solid #263040;
+    border-radius: 10px;
+    padding: 9px 14px;
+    cursor: default;
+    transition: all .18s ease;
+    min-width: 140px;
+  }
+  .app-card:hover {
+    background: #212d44;
+    border-color: #4a6090;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(0,0,0,.35);
+  }
+  .app-card.highlight { border-color: #2e4a70; }
+
+  .app-icon {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 800;
+    color: #fff;
+    flex-shrink: 0;
+    letter-spacing: -.5px;
+  }
+  .app-info { display: flex; flex-direction: column; }
+  .app-name { font-size: 13px; font-weight: 600; color: #dde5f0; line-height: 1.2; }
+  .app-desc { font-size: 11px; color: #5a6a80; margin-top: 1px; }
+
+  /* App icon colors */
+  .ic-word    { background: linear-gradient(135deg,#1e4db7,#2b6fe0); }
+  .ic-excel   { background: linear-gradient(135deg,#1a7a3c,#21a84f); }
+  .ic-ppt     { background: linear-gradient(135deg,#c7401a,#e05a2b); }
+  .ic-outlook { background: linear-gradient(135deg,#0460d9,#1a7fe0); }
+  .ic-onenote { background: linear-gradient(135deg,#6a2e9e,#8a4ec0); }
+  .ic-access  { background: linear-gradient(135deg,#a41e22,#c42b30); }
+  .ic-pub     { background: linear-gradient(135deg,#1a4f7a,#2266a0); }
+  .ic-forms   { background: linear-gradient(135deg,#058274,#07a894); }
+  .ic-planner { background: linear-gradient(135deg,#0b7035,#0f9848); }
+  .ic-todo    { background: linear-gradient(135deg,#1656c1,#1e72e0); }
+  .ic-white   { background: linear-gradient(135deg,#1a3a6e,#1e5090); }
+  .ic-stream  { background: linear-gradient(135deg,#6a1082,#8c18a8); }
+  .ic-viva    { background: linear-gradient(135deg,#0d6eaf,#0f8fe0); }
+  .ic-onedrive{ background: linear-gradient(135deg,#0566c2,#1480e8); }
+  .ic-sharepoint{ background: linear-gradient(135deg,#036c70,#05898e); }
+  .ic-exchange{ background: linear-gradient(135deg,#0272c0,#0390f0); }
+  .ic-teams-b { background: linear-gradient(135deg,#5558af,#6264c7); }
+  .ic-defender{ background: linear-gradient(135deg,#0e5a8a,#1278b5); }
+  .ic-intune  { background: linear-gradient(135deg,#0060ac,#007fd6); }
+  .ic-entra   { background: linear-gradient(135deg,#0074cc,#0099ff); }
+  .ic-purview { background: linear-gradient(135deg,#6b2d8b,#8c3ab5); }
+  .ic-azure   { background: linear-gradient(135deg,#0072c6,#1090e8); }
+  .ic-win     { background: linear-gradient(135deg,#0073ce,#1590f0); }
+  .ic-surface { background: linear-gradient(135deg,#0066b4,#0085e0); }
+  .ic-xbox    { background: linear-gradient(135deg,#107c10,#15a315); }
+  .ic-bing    { background: linear-gradient(135deg,#008373,#00a890); }
+  .ic-copilot { background: linear-gradient(135deg,#5b5fc7,#7b5ea7); }
+  .ic-power   { background: linear-gradient(135deg,#742774,#9b369b); }
+  .ic-powerbi { background: linear-gradient(135deg,#e8a800,#f5c518); }
+  .ic-dynamics{ background: linear-gradient(135deg,#0066ff,#2288ff); }
+
+  /* ── Azure Layer ── */
+  .azure-layer { background: #0e1620; border-color: #1a2840; }
+  .azure-layer:hover { border-color: #2a4060; }
+
+  /* ── Windows Layer ── */
+  .win-layer { background: #0e1a1e; border-color: #1a2e35; }
+  .win-layer:hover { border-color: #2a4a55; }
+
+  /* ── Right Column ── */
+  .right-col { display: flex; flex-direction: column; gap: 14px; }
+
+  .side-card {
+    background: #141820;
+    border: 1px solid #252d3d;
+    border-radius: 14px;
+    padding: 18px 16px;
+  }
+  .side-title {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: #8892a4;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .side-subtitle { font-size: 11px; color: #4a5a70; margin-bottom: 12px; }
+  .side-badge {
+    font-size: 10px;
+    color: #c06000;
+    background: #2a1a00;
+    border: 1px solid #3a2500;
+    border-radius: 4px;
+    padding: 2px 7px;
+    margin-bottom: 12px;
+    display: inline-block;
+  }
+
+  .side-app {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 9px;
+    margin-bottom: 6px;
+    background: #1c2435;
+    border: 1px solid #263040;
+    cursor: default;
+    transition: all .18s;
+  }
+  .side-app:hover {
+    background: #212d44;
+    border-color: #4060a0;
+    transform: translateX(2px);
+  }
+  .side-app-icon {
+    width: 32px; height: 32px;
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 800; color: #fff; flex-shrink: 0;
+  }
+  .side-app-info .app-name { font-size: 12px; }
+  .side-app-info .app-desc { font-size: 10px; }
+
+  /* ── Tooltip ── */
+  .app-card, .side-app { position: relative; }
+  .tooltip {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1c2840;
+    border: 1px solid #3a5080;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 11px;
+    color: #a0b8d8;
+    white-space: nowrap;
+    z-index: 100;
+    pointer-events: none;
+    box-shadow: 0 4px 16px rgba(0,0,0,.5);
+  }
+  .tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%; left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: #3a5080;
+  }
+  .app-card:hover .tooltip,
+  .side-app:hover .tooltip { display: block; }
+
+  /* ── Legend ── */
+  .legend {
+    display: flex; gap: 20px; flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 28px;
+    font-size: 11px; color: #5a6a80;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="ms-logo">
+    <span class="r"></span><span class="g"></span>
+    <span class="b"></span><span class="y"></span>
+  </div>
+  <h1>Microsoft 365 生态架构图</h1>
+  <p class="subtitle">分层架构 &nbsp;·&nbsp; 收入维度映射 &nbsp;·&nbsp; 悬停查看关联关系</p>
+</div>
+
+<div class="layout">
+  <!-- ══ Main Column ══ -->
+  <div class="main-col">
+
+    <!-- Layer 1: M365 Subscription -->
+    <div class="layer">
+      <div class="layer-header">
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <div class="layer-title"><span class="layer-icon">🟧</span> MICROSOFT 365 订阅层</div>
+          <div class="tags">
+            <span class="tag">面向用户</span>
+            <span class="tag">按月/年订阅</span>
+          </div>
+        </div>
+        <div class="revenue-badge">
+          <span class="icon">📊</span>
+          <span><span class="revenue-label">财报收入维度</span><br><strong>Productivity &amp; Business Processes</strong></span>
+        </div>
+      </div>
+
+      <div class="section-label">核心 Office 应用</div>
+      <div class="app-grid">
+        <div class="app-card">
+          <div class="app-icon ic-word">W</div>
+          <div class="app-info"><div class="app-name">Word</div><div class="app-desc">文档处理</div></div>
+          <div class="tooltip">桌面 + Web + 移动端全平台</div>
+        </div>
+        <div class="app-card">
+          <div class="app-icon ic-excel">X</div>
+          <div class="app-info"><div class="app-name">Excel</div><div class="app-desc">电子表格</div></div>
+          <div class="tooltip">支持 Copilot 数据分析增强</div>
+        </div>
+        <div class="app-card">
+          <div class="app-icon ic-ppt">P</div>
+          <div class="app-info"><div class="app-name">PowerPoint</div><div class="app-desc">演示文稿</div></div>
+          <div class="tooltip">Designer AI 自动美化</div>
+        </div>
+        <div class="app-card">
+          <div class="app-icon ic-outlook">O</div>
+          <div class="app-info"><div class="app-name">Outlook</div><div class="app-desc">邮件与日历</div></div>
+          <div class="tooltip">连接 Exchange Online</div>
+        </div>
+        <div class="app-card">
+          <div class="app-icon ic-onenote">N</div>
+          <div class="app-info"><div class="app-name">OneNote</div><div class="app-desc">笔记</div></div>
+          <div class="tooltip">存储于 OneDrive/SharePoint</div>
+        </div>
+        <div class="app-card">
+          <div class="app-icon ic-access">A</div>
+          <div class="app-info"><div class="app-name">Access</div><div class="app-desc">数据库（仅PC）</div></div>
+          <div class="tooltip">仅限 Windows 桌面端</div>
+        </div>
+        <div class="app-card">
+          <div class="app-icon ic-pub">Pb</div>
+          <div class="app-info"><div class="app-name">Publisher</div><div class="app-desc">排版（仅PC）</div></div>
+          <div class="tooltip">将于2026年停止支持</div>
+        </div>
+      </div>
+
+      <hr class="section-divider">
+      <div class="section-label">云存储与协作平台</div>
+      <div class="app-grid">
+        <div class="app-card">
+          <div class="app-icon ic-onedrive">☁</div>
+          <div class="app-info"><div class="app-name">OneDrive</div><div class="app-desc">个人云存储</div></div>
+          <div class="tooltip">1TB / 用户，个人文件中心</div>
+        </div>
+        <div class="app-card">
+          <div class="app-icon ic-sharepoint">S</div>
+          <div class="app-info"><div class="app-name">SharePoint</div><div class="app-desc">团队协作门户</div></div>
+          <div class="tooltip">企业内网站 & 文档库</div>
+        </div>
+        <div class="app-card">
+          <div class="app-icon ic-exchange">Ex</div>
+          <div class="app-info"><div class="app-name">Exchange Online</div><div class="app-desc">企业邮件服务</div></div>
+          <div class="tooltip">Outlook 后端邮箱基础设施</div>
+        </div>
+        <div class="app-card">
+          <div class="app-icon ic-teams-b">T</div>
+          <div class="app-info"><div class="app-name">Teams（捆绑版）</div><div class="app-desc">部分 SKU 含</div></div>
+          <div class="tooltip">企业版 M365 E3/E5 含 Teams</div>
+        </div>
+      </div>
+
+      <hr class="section-divider">
+      <div class="section-label">生产力增值服务</div>
+      <div class="app-grid">
+        <div class="app-card">
+          <div class="app-icon ic-forms">Fo</div>
+          <div class="app-info"><div class="app-name">Forms</div><div class="app-desc">问卷与调查</div></div>
+          <div class="tooltip">集成 Teams / SharePoint</div>
+        </div>
+        <div class="app-card">
+          <div class="app-icon ic-planner">Pl</div>
+          <div class="app-info"><div class="app-name">Planner</div><div class="app-desc">任务管理</div></div>
+          <div class="tooltip">已整合 Project for Web</div>
+        </div>
+        <div class="app-card">
+          <div class="app-icon ic-todo">✓</div>
+          <div class="app-info"><div class="app-name">To Do</div><div class="app-desc">个人任务</div></div>
+          <div class="tooltip">与 Planner / Outlook 同步</div>
+        </div>
+        <div class="app-card">
+          <div class="app-icon ic-white">W</div>
+          <div class="app-info"><div class="app-name">Whiteboard</div><div class="app-desc">白板协作</div></div>
+          <div class="tooltip">Teams 会议内嵌使用</div>
+        </div>
+        <div class="app-card">
+          <div class="app-icon ic-stream">▶</div>
+          <div class="app-info"><div class="app-name">Stream</div><div class="app-desc">企业视频</div></div>
+          <div class="tooltip">基于 SharePoint 存储</div>
+        </div>
+        <div class="app-card">
+          <div class="app-icon ic-copilot">✦</div>
+          <div class="app-info"><div class="app-name">Microsoft 365 Copilot</div><div class="app-desc">AI 助手（加购）</div></div>
+          <div class="tooltip">￥219/用户/月，需基础 SKU</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Layer 2: Security & Compliance -->
+    <div class="layer" style="background:#12181e;border-color:#1e2e3a;">
+      <div class="layer-header">
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <div class="layer-title"><span class="layer-icon">🛡️</span> 安全与合规层</div>
+          <div class="tags">
+            <span class="tag">企业 E3 / E5</span>
+            <span class="tag">加购 Add-on</span>
+          </div>
+        </div>
+        <div class="revenue-badge">
+          <span class="icon">📊</span>
+          <span><span class="revenue-label">财报收入维度</span><br><strong>Productivity &amp; Business Processes</strong></span>
+        </div>
+      </div>
+      <div class="app-grid">
+        <div class="app-card">
+          <div class="app-icon ic-defender">🛡</div>
+          <div class="app-info"><div class="app-name">Defender for Office</div><div class="app-desc">邮件 & 协作安全</div></div>
+          <div class="tooltip">ATP / MDO Plan1/2</div>
+        </div>
+        <div class="app-card">
+          <div class="app-icon ic-defender">🔒</div>
+          <div class="app-info"><div class="app-name">Defender for Endpoint</div><div class="app-desc">端点防护</div></div>
+          <div class="tooltip">P1 含 M365 E3，P2 含 E5</div>
+        </div>
+        <div class="app-card">
+          <div class="app-icon ic-entra">🔑</div>
+          <div class="app-info"><div class="app-name">Entra ID</div><div class="app-desc">身份认证（原 AAD）</div></div>
+          <div class="tooltip">P1 含 E3，P2 含 E5</div>
+        </div>
+        <div class="app-card">
+          <div class="app-icon ic-intune">💻</div>
+          <div class="app-info"><div class="app-name">Intune</div><div class="app-desc">设备管理 MDM</div></div>
+          <div class="tooltip">含 M365 E3 / Business Premium</div>
+        </div>
+        <div class="app-card">
+          <div class="app-icon ic-purview">🔍</div>
+          <div class="app-info"><div class="app-name">Purview</div><div class="app-desc">数据合规与治理</div></div>
+          <div class="tooltip">原 Compliance Center / AIP</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Layer 3: Intelligent Cloud / Azure -->
+    <div class="layer azure-layer">
+      <div class="layer-header">
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <div class="layer-title"><span class="layer-icon">☁️</span> Azure 智能云层</div>
+          <div class="tags">
+            <span class="tag">按用量付费</span>
+            <span class="tag">基础设施</span>
+          </div>
+        </div>
+        <div class="revenue-badge" style="color:#4ab8e0;background:#0a1c2e;border-color:#1a3a55;">
+          <span class="icon">📊</span>
+          <span><span class="revenue-label">财报收入维度</span><br><strong>Intelligent Cloud</strong></span>
+        </div>
+      </div>
+      <div class="app-grid">
+        <div class="app-card">
+          <div class="app-icon ic-azure">Az</div>
+          <div class="app-info"><div class="app-name">Azure OpenAI</div><div class="app-desc">GPT-4o / o系列模型</div></div>
+          <div class="tooltip">Copilot 底层 AI 基础设施</div>
+        </div>
+        <div class="app-card">
+          <div class="app-icon ic-azure" style="font-size:11px;">AI</div>
+          <div class="app-info"><div class="app-name">Azure AI Services</div><div class="app-desc">认知服务合集</div></div>
+          <div class="tooltip">视觉、语音、翻译、搜索</div>
+        </div>
+        <div class="app-card">
+          <div class="app-icon ic-azure" style="font-size:10px;">AD</div>
+          <div class="app-info"><div class="app-name">Azure AD B2C</div><div class="app-desc">外部用户身份</div></div>
+          <div class="tooltip">客户身份访问管理 CIAM</div>
+        </div>
+        <div class="app-card">
+          <div class="app-icon ic-azure" style="font-size:10px;">SQL</div>
+          <div class="app-info"><div class="app-name">Azure SQL / Cosmos</div><div class="app-desc">云数据库服务</div></div>
+          <div class="tooltip">M365 后端数据存储基础</div>
+        </div>
+        <div class="app-card">
+          <div class="app-icon ic-copilot" style="font-size:10px;">Co</div>
+          <div class="app-info"><div class="app-name">GitHub Copilot</div><div class="app-desc">开发者 AI</div></div>
+          <div class="tooltip">归属 Intelligent Cloud 收入</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Layer 4: Windows / More Personal Computing -->
+    <div class="layer win-layer">
+      <div class="layer-header">
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <div class="layer-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="#0073ce"><path d="M0 3.5L10 2v10H0zm11 0l13-2v12H11zM0 13h10v10L0 20.5zm11 0h13v12L11 23z"/></svg>
+            Windows / 个人计算层
+          </div>
+          <div class="tags">
+            <span class="tag">OEM + 零售</span>
+            <span class="tag">设备 & 搜索</span>
+          </div>
+        </div>
+        <div class="revenue-badge" style="color:#5abfa0;background:#0a1e1a;border-color:#1a3530;">
+          <span class="icon">📊</span>
+          <span><span class="revenue-label">财报收入维度</span><br><strong>More Personal Computing</strong></span>
+        </div>
+      </div>
+      <div class="app-grid">
+        <div class="app-card">
+          <div class="app-icon ic-win" style="font-size:11px;">Win</div>
+          <div class="app-info"><div class="app-name">Windows 11</div><div class="app-desc">操作系统</div></div>
+          <div class="tooltip">OEM 授权 + Windows 365 云</div>
+        </div>
+        <div class="app-card">
+          <div class="app-icon ic-win" style="font-size:10px;">W365</div>
+          <div class="app-info"><div class="app-name">Windows 365</div><div class="app-desc">云 PC 订阅</div></div>
+          <div class="tooltip">将 PC 串流至任意设备</div>
+        </div>
+        <div class="app-card">
+          <div class="app-icon ic-surface" style="font-size:10px;">Sur</div>
+          <div class="app-info"><div class="app-name">Surface</div><div class="app-desc">自研硬件</div></div>
+          <div class="tooltip">Pro / Laptop / Studio 系列</div>
+        </div>
+        <div class="app-card">
+          <div class="app-icon ic-bing" style="font-size:11px;">Bi</div>
+          <div class="app-info"><div class="app-name">Bing / Edge</div><div class="app-desc">搜索与浏览器</div></div>
+          <div class="tooltip">Copilot 入口，搜索广告收入</div>
+        </div>
+        <div class="app-card">
+          <div class="app-icon ic-xbox" style="font-size:10px;">Xbox</div>
+          <div class="app-info"><div class="app-name">Xbox / Game Pass</div><div class="app-desc">游戏订阅</div></div>
+          <div class="tooltip">Activision Blizzard 整合</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end main-col -->
+
+  <!-- ══ Right Column ══ -->
+  <div class="right-col">
+
+    <!-- Independent / Non-365 -->
+    <div class="side-card">
+      <div class="side-title">📌 独立 / 非365</div>
+      <div class="side-subtitle">财报收入维度：分散于多个维度</div>
+      <div class="side-badge">已从 365 拆分</div>
+
+      <div class="side-app">
+        <div class="side-app-icon ic-teams-b">T</div>
+        <div class="side-app-info">
+          <div class="app-name">Teams（付费）</div>
+          <div class="app-desc">单独购买</div>
+        </div>
+        <div class="tooltip">2023年从M365拆分出售</div>
+      </div>
+      <div class="side-app">
+        <div class="side-app-icon" style="background:#3c3f72;">TF</div>
+        <div class="side-app-info">
+          <div class="app-name">Teams 免费版</div>
+          <div class="app-desc">免费 / 广告</div>
+        </div>
+        <div class="tooltip">面向中小企业免费使用</div>
+      </div>
+    </div>
+
+    <!-- Power Platform -->
+    <div class="side-card">
+      <div class="side-title">⚡ Power Platform</div>
+      <div class="side-subtitle">低代码 / 数据智能</div>
+
+      <div class="side-app">
+        <div class="side-app-icon ic-power">PA</div>
+        <div class="side-app-info">
+          <div class="app-name">Power Apps</div>
+          <div class="app-desc">低代码应用</div>
+        </div>
+      </div>
+      <div class="side-app">
+        <div class="side-app-icon ic-power">PF</div>
+        <div class="side-app-info">
+          <div class="app-name">Power Automate</div>
+          <div class="app-desc">流程自动化</div>
+        </div>
+      </div>
+      <div class="side-app">
+        <div class="side-app-icon ic-powerbi">BI</div>
+        <div class="side-app-info">
+          <div class="app-name">Power BI</div>
+          <div class="app-desc">商业智能</div>
+        </div>
+      </div>
+      <div class="side-app">
+        <div class="side-app-icon ic-power">PV</div>
+        <div class="side-app-info">
+          <div class="app-name">Power Virtual Agents</div>
+          <div class="app-desc">AI 聊天机器人</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dynamics 365 -->
+    <div class="side-card">
+      <div class="side-title">🔷 Dynamics 365</div>
+      <div class="side-subtitle">财报维度：Productivity &amp; Business Processes</div>
+      <div class="side-app">
+        <div class="side-app-icon ic-dynamics">D</div>
+        <div class="side-app-info">
+          <div class="app-name">Sales / CRM</div>
+          <div class="app-desc">客户关系管理</div>
+        </div>
+      </div>
+      <div class="side-app">
+        <div class="side-app-icon ic-dynamics">D</div>
+        <div class="side-app-info">
+          <div class="app-name">Finance &amp; Operations</div>
+          <div class="app-desc">ERP 企业资源</div>
+        </div>
+      </div>
+      <div class="side-app">
+        <div class="side-app-icon ic-dynamics">D</div>
+        <div class="side-app-info">
+          <div class="app-name">Customer Insights</div>
+          <div class="app-desc">数据与 AI</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Viva -->
+    <div class="side-card">
+      <div class="side-title">🌱 Microsoft Viva</div>
+      <div class="side-subtitle">员工体验平台（加购）</div>
+      <div class="side-app">
+        <div class="side-app-icon ic-viva">Vi</div>
+        <div class="side-app-info">
+          <div class="app-name">Viva Engage</div>
+          <div class="app-desc">社区（原 Yammer）</div>
+        </div>
+      </div>
+      <div class="side-app">
+        <div class="side-app-icon ic-viva">Vi</div>
+        <div class="side-app-info">
+          <div class="app-name">Viva Insights</div>
+          <div class="app-desc">工作效率分析</div>
+        </div>
+      </div>
+      <div class="side-app">
+        <div class="side-app-icon ic-viva">Vi</div>
+        <div class="side-app-info">
+          <div class="app-name">Viva Learning</div>
+          <div class="app-desc">员工培训</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end right-col -->
+</div><!-- end layout -->
+
+<!-- Legend -->
+<div class="legend">
+  <div class="legend-item">
+    <div class="legend-dot" style="background:#5b9bd5;"></div>
+    Productivity &amp; Business Processes
+  </div>
+  <div class="legend-item">
+    <div class="legend-dot" style="background:#4ab8e0;"></div>
+    Intelligent Cloud
+  </div>
+  <div class="legend-item">
+    <div class="legend-dot" style="background:#5abfa0;"></div>
+    More Personal Computing
+  </div>
+  <div class="legend-item" style="color:#4a5a70;">
+    悬停卡片可查看关联说明
+  </div>
+</div>
+
+</body>
+</html>
