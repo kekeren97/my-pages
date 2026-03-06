@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>微软 AI Native Windows｜结构化信息图</title>
+  <style>
+    :root {
+      --ms-blue: #0067b8;
+      --ms-blue-2: #0f6cbd;
+      --ms-blue-3: #e8f2fc;
+      --ms-ink: #0f172a;
+      --ms-text: #1f2937;
+      --ms-muted: #5b6575;
+      --ms-line: #d9e2ec;
+      --ms-bg: #f5f9fd;
+      --ms-card: rgba(255,255,255,.86);
+      --ms-surface: #ffffff;
+      --hero-1: #eff6ff;
+      --hero-2: #f6fbff;
+      --hero-3: #dbeafe;
+      --shadow: 0 10px 30px rgba(15, 23, 42, .08);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --max: 1320px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+      color: var(--ms-text);
+      background:
+        radial-gradient(circle at 85% 6%, rgba(0,103,184,.10), transparent 0 24%),
+        radial-gradient(circle at 8% 0%, rgba(15,108,189,.08), transparent 0 20%),
+        linear-gradient(180deg, #f8fbff 0%, #f4f8fc 36%, #eef5fb 100%);
+      line-height: 1.6;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(14px);
+      background: rgba(255,255,255,.78);
+      border-bottom: 1px solid rgba(217,226,236,.9);
+    }
+
+    .topbar-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 14px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .ms-logo {
+      display: grid;
+      grid-template-columns: repeat(2, 10px);
+      grid-template-rows: repeat(2, 10px);
+      gap: 2px;
+      width: 22px;
+      height: 22px;
+      flex: 0 0 auto;
+    }
+    .ms-logo span:nth-child(1){background:#f25022}
+    .ms-logo span:nth-child(2){background:#7fba00}
+    .ms-logo span:nth-child(3){background:#00a4ef}
+    .ms-logo span:nth-child(4){background:#ffb900}
+
+    .brand h1 {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 600;
+      color: #111827;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .nav {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .nav a {
+      text-decoration: none;
+      color: #334155;
+      font-size: 14px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      transition: .2s ease;
+    }
+    .nav a:hover {
+      background: rgba(0,103,184,.08);
+      color: var(--ms-blue);
+    }
+
+    .container {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 28px;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      border-radius: 32px;
+      background:
+        radial-gradient(circle at 82% 14%, rgba(14,165,233,.18), transparent 0 24%),
+        radial-gradient(circle at 12% 22%, rgba(59,130,246,.16), transparent 0 22%),
+        linear-gradient(135deg, var(--hero-1) 0%, var(--hero-2) 50%, var(--hero-3) 100%);
+      border: 1px solid rgba(191,219,254,.8);
+      box-shadow: var(--shadow);
+      padding: 56px 56px 40px;
+      margin-bottom: 26px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 28px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ms-blue);
+      background: rgba(255,255,255,.72);
+      border: 1px solid rgba(147,197,253,.8);
+      padding: 7px 12px;
+      border-radius: 999px;
+      margin-bottom: 16px;
+    }
+
+    .hero h2 {
+      margin: 0 0 16px;
+      font-size: clamp(34px, 5vw, 56px);
+      line-height: 1.08;
+      letter-spacing: -.02em;
+      color: #0f172a;
+    }
+
+    .hero p.lead {
+      margin: 0 0 22px;
+      font-size: 18px;
+      color: #334155;
+      max-width: 760px;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 26px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      font-weight: 600;
+      border-radius: 999px;
+      padding: 12px 18px;
+      transition: .2s ease;
+      border: 1px solid transparent;
+    }
+    .btn.primary { background: var(--ms-blue); color: white; }
+    .btn.primary:hover { background: #005a9e; }
+    .btn.secondary {
+      background: rgba(255,255,255,.8);
+      color: #0f172a;
+      border-color: rgba(148,163,184,.35);
+    }
+    .btn.secondary:hover { background: white; }
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .stat {
+      background: rgba(255,255,255,.72);
+      border: 1px solid rgba(191,219,254,.85);
+      border-radius: 18px;
+      padding: 16px 16px 14px;
+      min-height: 108px;
+    }
+    .stat .k {
+      font-size: 28px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 2px;
+    }
+    .stat .t {
+      font-size: 13px;
+      color: #475569;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .stat .d {
+      font-size: 13px;
+      color: #64748b;
+    }
+
+    .hero-visual {
+      position: relative;
+      min-height: 420px;
+      display: grid;
+      place-items: center;
+    }
+
+    .orb {
+      position: absolute;
+      border-radius: 999px;
+      filter: blur(2px);
+      opacity: .9;
+    }
+    .orb.o1 {
+      width: 280px; height: 280px;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.95), rgba(59,130,246,.30), rgba(14,165,233,.15));
+      top: 8%; right: 10%;
+      box-shadow: inset 0 0 50px rgba(255,255,255,.85), 0 30px 60px rgba(2,132,199,.18);
+    }
+    .orb.o2 {
+      width: 190px; height: 190px;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.92), rgba(99,102,241,.24), rgba(59,130,246,.12));
+      bottom: 10%; left: 14%;
+      box-shadow: inset 0 0 36px rgba(255,255,255,.8), 0 20px 50px rgba(79,70,229,.12);
+    }
+
+    .device {
+      position: relative;
+      width: min(100%, 460px);
+      background: linear-gradient(180deg, rgba(255,255,255,.88), rgba(255,255,255,.72));
+      border: 1px solid rgba(255,255,255,.95);
+      border-radius: 28px;
+      box-shadow: 0 24px 80px rgba(15,23,42,.14);
+      padding: 18px;
+      backdrop-filter: blur(16px);
+    }
+
+    .device-top {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #cbd5e1; }
+
+    .chip-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .mini-card {
+      background: rgba(255,255,255,.92);
+      border: 1px solid rgba(226,232,240,.95);
+      border-radius: 18px;
+      padding: 16px;
+    }
+    .mini-card .label {
+      font-size: 12px;
+      color: #64748b;
+      letter-spacing: .03em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .mini-card .value {
+      font-size: 18px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 4px;
+    }
+    .mini-card .sub {
+      font-size: 13px;
+      color: #475569;
+    }
+
+    .flow {
+      display: grid;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .flow-step {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: rgba(248,250,252,.95);
+      border: 1px solid rgba(226,232,240,.95);
+      font-size: 14px;
+    }
+    .flow-step b { color: #0f172a; }
+    .arrow { color: var(--ms-blue); font-weight: 700; }
+
+    .section {
+      margin-top: 22px;
+      background: linear-gradient(180deg, rgba(255,255,255,.82), rgba(255,255,255,.70));
+      border: 1px solid rgba(217,226,236,.9);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .section-head {
+      padding: 30px 32px 12px;
+    }
+
+    .section-head .kicker {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--ms-blue);
+      margin-bottom: 10px;
+    }
+
+    .section-head h3 {
+      margin: 0 0 10px;
+      font-size: clamp(26px, 3.2vw, 38px);
+      line-height: 1.12;
+      color: #0f172a;
+      letter-spacing: -.02em;
+    }
+
+    .section-head p {
+      margin: 0;
+      color: #475569;
+      font-size: 16px;
+      max-width: 920px;
+    }
+
+    .pad { padding: 0 32px 32px; }
+
+    .grid-2 { display: grid; grid-template-columns: 1.05fr .95fr; gap: 22px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+
+    .card {
+      background: var(--ms-card);
+      border: 1px solid rgba(226,232,240,.95);
+      border-radius: 22px;
+      padding: 22px;
+      height: 100%;
+    }
+
+    .card h4 {
+      margin: 0 0 10px;
+      font-size: 21px;
+      line-height: 1.25;
+      color: #0f172a;
+    }
+
+    .card p { margin: 0; color: #475569; }
+
+    .icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, rgba(0,103,184,.12), rgba(14,165,233,.14));
+      color: var(--ms-blue);
+      font-weight: 700;
+      margin-bottom: 16px;
+      font-size: 18px;
+    }
+
+    .split-stack { display: grid; gap: 16px; }
+
+    .pipeline {
+      display: grid;
+      gap: 14px;
+      padding: 24px;
+      background: linear-gradient(180deg, #eff6ff, #f8fbff);
+      border: 1px solid rgba(191,219,254,.8);
+      border-radius: 24px;
+      height: 100%;
+    }
+
+    .pipe-step {
+      position: relative;
+      padding: 18px 18px 18px 20px;
+      background: rgba(255,255,255,.92);
+      border: 1px solid rgba(219,234,254,.9);
+      border-radius: 18px;
+    }
+    .pipe-step:not(:last-child)::after {
+      content: "↓";
+      position: absolute;
+      left: 50%; bottom: -22px;
+      transform: translateX(-50%);
+      color: var(--ms-blue);
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .pipe-step .title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 4px;
+    }
+    .pipe-step .desc { color: #475569; font-size: 14px; }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+    .badge {
+      font-size: 13px;
+      color: #0f172a;
+      background: rgba(255,255,255,.86);
+      border: 1px solid rgba(203,213,225,.9);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-weight: 600;
+    }
+
+    .timeline {
+      position: relative;
+      display: grid;
+      gap: 14px;
+      padding-left: 18px;
+    }
+    .timeline::before {
+      content: "";
+      position: absolute;
+      left: 7px;
+      top: 6px;
+      bottom: 6px;
+      width: 2px;
+      background: linear-gradient(180deg, rgba(0,103,184,.55), rgba(14,165,233,.18));
+    }
+    .time-item {
+      position: relative;
+      padding: 18px 18px 18px 22px;
+      background: rgba(255,255,255,.92);
+      border: 1px solid rgba(226,232,240,.95);
+      border-radius: 18px;
+      margin-left: 14px;
+    }
+    .time-item::before {
+      content: "";
+      position: absolute;
+      left: -20px;
+      top: 24px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--ms-blue);
+      box-shadow: 0 0 0 5px rgba(0,103,184,.12);
+    }
+    .time-item .year {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--ms-blue);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .time-item h5 {
+      margin: 0 0 8px;
+      font-size: 18px;
+      color: #0f172a;
+    }
+    .time-item p {
+      margin: 0;
+      color: #475569;
+      font-size: 14px;
+    }
+
+    .compare {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+    }
+    .compare .panel {
+      border-radius: 22px;
+      padding: 22px;
+      border: 1px solid rgba(226,232,240,.95);
+      background: rgba(255,255,255,.86);
+    }
+    .panel .tag {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--ms-blue);
+      background: rgba(0,103,184,.08);
+      border-radius: 999px;
+      padding: 6px 10px;
+      margin-bottom: 12px;
+    }
+    .panel h4 { margin: 0 0 12px; font-size: 24px; color: #0f172a; }
+    .panel ul { margin: 0; padding-left: 18px; color: #475569; }
+    .panel li + li { margin-top: 8px; }
+
+    .big-quote {
+      padding: 34px;
+      border-radius: 28px;
+      background:
+        radial-gradient(circle at 10% 10%, rgba(0,103,184,.12), transparent 0 28%),
+        linear-gradient(135deg, #0f6cbd 0%, #0f8bd8 55%, #60a5fa 100%);
+      color: white;
+      box-shadow: 0 24px 60px rgba(15,108,189,.24);
+    }
+    .big-quote .small {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      opacity: .8;
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+    .big-quote .text {
+      font-size: clamp(24px, 3vw, 38px);
+      line-height: 1.18;
+      font-weight: 700;
+      letter-spacing: -.02em;
+      margin-bottom: 14px;
+    }
+    .big-quote .sub {
+      font-size: 16px;
+      opacity: .92;
+      max-width: 900px;
+    }
+
+    .footer-note {
+      margin: 20px 0 40px;
+      padding: 18px 22px;
+      border-radius: 18px;
+      background: rgba(255,255,255,.78);
+      border: 1px solid rgba(226,232,240,.95);
+      color: #64748b;
+      font-size: 13px;
+    }
+
+    @media (max-width: 1120px) {
+      .hero-grid, .grid-2, .grid-3, .grid-4, .compare { grid-template-columns: 1fr; }
+      .hero-visual { min-height: 340px; }
+      .hero-stats { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 760px) {
+      .topbar-inner, .container { padding-left: 18px; padding-right: 18px; }
+      .hero { padding: 30px 22px 24px; border-radius: 24px; }
+      .section-head, .pad { padding-left: 20px; padding-right: 20px; }
+      .section-head { padding-top: 24px; }
+      .nav { display: none; }
+      .hero p.lead { font-size: 16px; }
+      .big-quote { padding: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="ms-logo" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+        <h1>AI Native Windows｜微软 AI 操作系统路线图</h1>
+      </div>
+      <nav class="nav">
+        <a href="#overview">概览</a>
+        <a href="#memory">语义记忆</a>
+        <a href="#hybrid">混合算力</a>
+        <a href="#orchestration">跨应用编排</a>
+        <a href="#strategy">战略原因</a>
+        <a href="#future">未来判断</a>
+      </nav>
+    </div>
+  </div>
+
+  <main class="container">
+    <section class="hero" id="overview">
+      <div class="hero-grid">
+        <div>
+          <div class="eyebrow">Windows + Copilot + NPU + Azure</div>
+          <h2>从 GUI 到意图界面：微软正在把 AI 变成操作系统的一部分</h2>
+          <p class="lead">
+            过去，用户先决定打开哪个 App，再调用对应功能；现在，微软试图把这一逻辑改写成“先表达意图，再由系统理解、编排与执行”。
+            这不是给 Windows 加一个聊天框，而是在重塑 Windows 作为平台、入口和上下文层的存在价值。
+          </p>
+          <div class="hero-actions">
+            <a class="btn primary" href="#memory">查看核心机制</a>
+            <a class="btn secondary" href="#strategy">看背后战略</a>
+          </div>
+          <div class="hero-stats">
+            <div class="stat">
+              <div class="k">GUI → Intent</div>
+              <div class="t">交互模式变化</div>
+              <div class="d">从“打开软件”转向“表达要做什么”。</div>
+            </div>
+            <div class="stat">
+              <div class="k">Local + Cloud</div>
+              <div class="t">算力架构变化</div>
+              <div class="d">轻任务本地处理，重任务云端兜底。</div>
+            </div>
+            <div class="stat">
+              <div class="k">Memory + Action</div>
+              <div class="t">能力边界变化</div>
+              <div class="d">AI 不只回答问题，还开始理解上下文并触发动作。</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-visual">
+          <div class="orb o1"></div>
+          <div class="orb o2"></div>
+          <div class="device">
+            <div class="device-top"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+            <div class="chip-grid">
+              <div class="mini-card">
+                <div class="label">交互入口</div>
+                <div class="value">Copilot</div>
+                <div class="sub">从侧边栏工具，走向系统级智能体入口</div>
+              </div>
+              <div class="mini-card">
+                <div class="label">本地算力</div>
+                <div class="value">NPU + 小模型</div>
+                <div class="sub">处理实时、低延迟、敏感数据任务</div>
+              </div>
+            </div>
+            <div class="flow">
+              <div class="flow-step"><span><b>用户意图</b>：帮我找上周那个蓝色 PPT</span><span class="arrow">→</span></div>
+              <div class="flow-step"><span><b>系统记忆</b>：Recall / Semantic Index</span><span class="arrow">→</span></div>
+              <div class="flow-step"><span><b>动作执行</b>：搜索、打开、总结、继续编辑</span><span class="arrow">→</span></div>
+              <div class="flow-step"><span><b>平台价值</b>：Windows 成为上下文与编排层</span><span class="arrow">✓</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div class="kicker">Operating model</div>
+        <h3>微软正在构建的，不只是一个 AI 功能，而是一套四层结构</h3>
+        <p>从硬件、运行时到 Copilot，再到应用层，微软正在把 AI 逐步塞进 Windows 的基础设施里，让“理解上下文、做出动作、调用软件”成为操作系统级能力。</p>
+      </div>
+      <div class="pad">
+        <div class="pipeline">
+          <div class="pipe-step">
+            <div class="title">应用层 Apps</div>
+            <div class="desc">Office、Outlook、Photos、Edge、第三方应用，继续承担具体功能与专业能力。</div>
+          </div>
+          <div class="pipe-step">
+            <div class="title">智能体层 Copilot</div>
+            <div class="desc">用户以自然语言表达意图，Copilot 负责理解、解释、组织与触发后续流程。</div>
+          </div>
+          <div class="pipe-step">
+            <div class="title">AI Runtime 层</div>
+            <div class="desc">Windows AI Runtime 承担模型调用、系统能力接入、推理路径分配等底层职责。</div>
+          </div>
+          <div class="pipe-step">
+            <div class="title">硬件层 CPU + GPU + NPU</div>
+            <div class="desc">通过 NPU 处理高频 AI 任务，把一部分原本依赖云端的推理成本转移到终端设备上。</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="memory">
+      <div class="section-head">
+        <div class="kicker">Memory layer</div>
+        <h3>Semantic Index：让电脑第一次拥有“长期记忆”</h3>
+        <p>微软在 Recall 路线上最核心的突破，不是搜索框更聪明，而是把“用户行为历史”转成可被 AI 理解的语义索引。这样一来，AI 不再是一个不懂上下文的外部访客，而是逐步拥有与你工作流相关的记忆层。</p>
+      </div>
+      <div class="pad">
+        <div class="grid-2">
+          <div class="card">
+            <div class="icon">01</div>
+            <h4>它在做什么？</h4>
+            <p>
+              系统以时间序列记录用户的活动痕迹，把屏幕内容、文档片段、网页、聊天界面等信息转化为可检索的语义表示。
+              用户不再必须记住文件名、路径或关键词，而可以通过“模糊记忆”反向找回内容。
+            </p>
+            <div class="badge-row">
+              <span class="badge">上周那个蓝色 PPT</span>
+              <span class="badge">我看过的东京酒店页面</span>
+              <span class="badge">昨天会议里提到的报价表</span>
+            </div>
+          </div>
+          <div class="card">
+            <div class="icon">02</div>
+            <h4>它为什么重要？</h4>
+            <p>
+              因为未来 AI 的价值不只取决于模型能力，更取决于是否掌握“与你相关的上下文”。如果没有记忆层，AI 只能回答通用问题；
+              一旦有语义索引，AI 才可能真正理解你的工作对象、历史轨迹与当前任务。
+            </p>
+            <div class="badge-row">
+              <span class="badge">记忆层</span>
+              <span class="badge">上下文层</span>
+              <span class="badge">个性化检索</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-3" style="margin-top:18px;">
+          <div class="card">
+            <div class="icon">A</div>
+            <h4>传统搜索</h4>
+            <p>核心依赖关键词、文件名、路径和标签。你得先“记得”，系统才能帮你找到。</p>
+          </div>
+          <div class="card">
+            <div class="icon">B</div>
+            <h4>语义搜索</h4>
+            <p>核心依赖 embedding 和向量检索。即使你只记得模糊特征，也能通过语义关联完成召回。</p>
+          </div>
+          <div class="card">
+            <div class="icon">C</div>
+            <h4>业务意义</h4>
+            <p>它让 Windows 从“文件容器”变成“个人上下文数据库”，这是后续所有 Agent 能力的前提。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="hybrid">
+      <div class="section-head">
+        <div class="kicker">Hybrid AI</div>
+        <h3>混合算力架构：不是所有任务都值得上云</h3>
+        <p>微软的真正设计重点，不是“把最强模型装进电脑”，而是把任务分层：低延迟、高频、隐私敏感的任务尽量留在本地；复杂、多步骤、推理密集的任务再交给 Azure 云端模型。</p>
+      </div>
+      <div class="pad">
+        <div class="compare">
+          <div class="panel">
+            <span class="tag">On-device AI</span>
+            <h4>本地 AI</h4>
+            <ul>
+              <li>依赖 NPU 与小模型运行，强调低延迟、低成本、离线可用。</li>
+              <li>适合 OCR、实时字幕、局部总结、翻译、图像理解、Recall 索引等任务。</li>
+              <li>敏感数据可不离开设备，企业更容易接受。</li>
+            </ul>
+          </div>
+          <div class="panel">
+            <span class="tag">Cloud AI</span>
+            <h4>云端 AI</h4>
+            <ul>
+              <li>依赖 Azure 模型完成长链路、多轮、复杂推理任务。</li>
+              <li>适合长文本生成、代码、数据分析、多步骤工作流与高复杂度内容创作。</li>
+              <li>承担能力上限，但不适合覆盖全部日常高频调用。</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="grid-3" style="margin-top:18px;">
+          <div class="card">
+            <div class="icon">￥</div>
+            <h4>原因一：算力成本</h4>
+            <p>如果每一次摘要、搜索、理解都走云端，Windows 规模下的推理成本会非常高。把轻任务放到本地，是最现实的经济学选择。</p>
+          </div>
+          <div class="card">
+            <div class="icon">⚡</div>
+            <h4>原因二：响应速度</h4>
+            <p>很多系统级体验必须是“瞬时”的，尤其是搜索、翻译、界面理解、摄像头与音频增强等场景，本地推理更符合体验要求。</p>
+          </div>
+          <div class="card">
+            <div class="icon">🔒</div>
+            <h4>原因三：隐私与合规</h4>
+            <p>企业采购 AI 的第一道门槛不是模型够不够强，而是数据能否留在本地、权限边界是否清晰、是否可审计。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="orchestration">
+      <div class="section-head">
+        <div class="kicker">Action orchestration</div>
+        <h3>跨应用编排：Copilot 不想只回答问题，它还想“替你调度软件”</h3>
+        <p>微软对未来 Windows 的设想，不是让 AI 永远停留在聊天框里，而是让它逐步具备跨应用理解与调用能力。真正的变化不是“生成答案”，而是“把答案落成动作”。</p>
+      </div>
+      <div class="pad">
+        <div class="grid-2">
+          <div class="split-stack">
+            <div class="card">
+              <div class="icon">意</div>
+              <h4>过去的工作方式</h4>
+              <p>用户先判断任务属于哪个软件，再打开工具、寻找按钮、手工完成多步操作。</p>
+            </div>
+            <div class="card">
+              <div class="icon">图</div>
+              <h4>现在想要的工作方式</h4>
+              <p>用户只表达目标：找文件、改图片、做摘要、发邮件；具体由系统判断该调用哪些能力完成链路。</p>
+            </div>
+          </div>
+          <div class="pipeline">
+            <div class="pipe-step">
+              <div class="title">用户说出意图</div>
+              <div class="desc">例如：把这张图调亮一点，再插进明天的汇报邮件。</div>
+            </div>
+            <div class="pipe-step">
+              <div class="title">Copilot 理解任务</div>
+              <div class="desc">拆分为图片处理、文件定位、邮件内容生成与附件插入等步骤。</div>
+            </div>
+            <div class="pipe-step">
+              <div class="title">系统编排应用与能力</div>
+              <div class="desc">调用图片、文档、邮件、系统权限与上下文信息，形成操作链路。</div>
+            </div>
+            <div class="pipe-step">
+              <div class="title">结果可被审阅与继续编辑</div>
+              <div class="desc">AI 不是黑盒替代，而是“先完成 70%，再让人确认与接管”。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="strategy">
+      <div class="section-head">
+        <div class="kicker">Strategic logic</div>
+        <h3>微软为什么必须这样做？背后不是技术浪漫，而是平台保卫战</h3>
+        <p>从商业逻辑看，这套路线并不神秘：它同时解决 Windows 的入口危机、AI 成本问题、企业隐私问题，以及 PC 行业新的升级叙事。</p>
+      </div>
+      <div class="pad">
+        <div class="grid-3">
+          <div class="card">
+            <div class="icon">1</div>
+            <h4>防止 Windows 被边缘化</h4>
+            <p>如果 AI 只存在于浏览器网页，用户对操作系统的依赖会迅速下降。微软必须让“系统级 AI 能力”成为 Windows 独有的价值锚点。</p>
+          </div>
+          <div class="card">
+            <div class="icon">2</div>
+            <h4>保住平台控制权</h4>
+            <p>未来的软件入口不再只是开始菜单和桌面图标，而是自然语言与 Agent。谁掌握这个入口，谁就重新掌握生态调度权。</p>
+          </div>
+          <div class="card">
+            <div class="icon">3</div>
+            <h4>推动硬件换代</h4>
+            <p>Copilot+ PC 与 NPU 标准，把 AI 从“云服务故事”重新拉回到“终端设备升级逻辑”，这对微软和 OEM 都极其关键。</p>
+          </div>
+        </div>
+
+        <div class="grid-2" style="margin-top:18px;">
+          <div class="card">
+            <div class="icon">4</div>
+            <h4>企业市场需要“本地可控”</h4>
+            <p>
+              政企客户采购 AI，核心顾虑并不是“模型参数不够大”，而是数据有没有离开本地、系统能否做权限分层、审计能否闭环。
+              微软把 AI 下沉到 Windows 设备端，本质上是在构建企业级信任基础设施。
+            </p>
+          </div>
+          <div class="card">
+            <div class="icon">5</div>
+            <h4>让 AI 从工具升级为基础设施</h4>
+            <p>
+              单独的聊天产品容易被替代，但操作系统级的记忆、权限、设备调用、软件编排能力更难复制。
+              微软不是只想做一个回答问题的 AI，而是想占住“数字工作入口”的新底座。
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div class="kicker">Evolution</div>
+        <h3>这件事放到更长的时间线里看，本质上是两次 Windows 设计范式切换</h3>
+        <p>第一次，Windows 解决的是“普通人如何通过图形界面使用电脑”；第二次，微软想解决的是“电脑如何通过自然语言理解人的意图”。</p>
+      </div>
+      <div class="pad">
+        <div class="timeline">
+          <div class="time-item">
+            <div class="year">1995 之后</div>
+            <h5>GUI 时代：人学习软件</h5>
+            <p>用户必须理解菜单、窗口、图标、路径、格式与功能入口。软件是工具箱，学习成本在用户身上。</p>
+          </div>
+          <div class="time-item">
+            <div class="year">云与移动时代</div>
+            <h5>平台时代：入口开始漂移</h5>
+            <p>浏览器、手机、SaaS 和云服务逐渐削弱了操作系统的中心地位，Windows 的入口优势开始被稀释。</p>
+          </div>
+          <div class="time-item">
+            <div class="year">2024–2026</div>
+            <h5>Copilot+ PC 时代：AI 被嵌入系统层</h5>
+            <p>微软开始用 Recall、本地 NPU、AI Runtime 和 Copilot，把“理解上下文 + 执行动作”的能力往底层收回。</p>
+          </div>
+          <div class="time-item">
+            <div class="year">下一阶段</div>
+            <h5>Agent OS：软件开始理解人</h5>
+            <p>未来最重要的不再是哪个 App 图标更强，而是谁能掌握上下文、权限、动作编排与可持续记忆层。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="future">
+      <div class="section-head">
+        <div class="kicker">Takeaway</div>
+        <h3>真正值得记住的结论，不是“微软加了很多 AI 功能”</h3>
+        <p>而是微软正在尝试把 Windows 从一个应用承载平台，改造成一个具备记忆、推理、动作与上下文整合能力的智能系统底座。</p>
+      </div>
+      <div class="pad">
+        <div class="big-quote">
+          <div class="small">One-line summary</div>
+          <div class="text">过去是“人学习软件”，未来是“软件理解人”。</div>
+          <div class="sub">
+            对微软而言，这不是一次普通功能升级，而是一次平台重定义：
+            让 Windows 不只是运行软件，而是理解意图、连接上下文、编排动作，并重新成为 AI 时代最重要的终端入口之一。
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer-note">
+      设计说明：本页面采用了微软官网 / Copilot+ PC 页面常见的结构节奏与 Fluent 风格语言进行重绘，包括：顶部轻导航、宽幅 Hero、浅色渐变背景、卡片式信息模块、蓝色强调色、圆角与轻阴影层次。
+      内容为结构化整理版，适合你继续用于汇报、文章配图或后续再扩写成更正式的一页式分析材料。
+    </div>
+  </main>
+</body>
+</html>
