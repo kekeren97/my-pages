@@ -29,13 +29,17 @@
 
             .staticrypt-form {
                 position: relative;
-                z-index: 1;
-                background: #ffffff;
+                z-index: 10;
+                background: rgba(5, 15, 40, 0.82);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                border: 1px solid rgba(100, 180, 255, 0.25);
                 max-width: 360px;
                 margin: 0 auto 100px;
                 padding: 45px;
                 text-align: center;
-                box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
+                box-shadow: 0 0 40px rgba(50, 120, 255, 0.3), 0 0 80px rgba(30, 80, 200, 0.15);
+                border-radius: 12px;
             }
 
             .staticrypt-form input[type="password"],
@@ -45,14 +49,15 @@
                 box-sizing: border-box; /* This ensures padding is included in the total width */
                 font-size: 14px;
                 outline: 0;
-                padding: 15px 30px 15px 15px; /* Adjust the padding to ensure there is space for the icon */
+                padding: 15px 30px 15px 15px;
                 width: 100%;
+                color: #e0f0ff;
             }
 
             .staticrypt-password-container {
                 position: relative;
                 outline: 0;
-                background: #f2f2f2;
+                background: rgba(255,255,255,0.08); border: 1px solid rgba(100,180,255,0.3);
                 width: 100%;
                 border: 0;
                 margin: 0 0 15px;
@@ -74,20 +79,25 @@
             .staticrypt-form .staticrypt-decrypt-button {
                 text-transform: uppercase;
                 outline: 0;
-                background: #4CAF50;
+                background: linear-gradient(135deg, #1a4fd6, #0d2a8a);
                 width: 100%;
-                border: 0;
+                border: 1px solid rgba(100,180,255,0.4);
                 padding: 15px;
-                color: #ffffff;
+                color: #a0d4ff;
                 font-size: 14px;
                 cursor: pointer;
+                border-radius: 6px;
+                letter-spacing: 2px;
+                transition: all 0.3s ease;
+                box-shadow: 0 0 15px rgba(30,100,255,0.4);
             }
 
             .staticrypt-form .staticrypt-decrypt-button:hover,
             .staticrypt-form .staticrypt-decrypt-button:active,
             .staticrypt-form .staticrypt-decrypt-button:focus {
-                background: #4CAF50;
-                filter: brightness(92%);
+                background: linear-gradient(135deg, #2255e8, #1540b0);
+                box-shadow: 0 0 25px rgba(50,150,255,0.7);
+                color: #ffffff;
             }
 
             .staticrypt-html {
@@ -102,7 +112,7 @@
             .staticrypt-content {
                 height: 100%;
                 margin-bottom: 1em;
-                background: #76B852;
+                background: #050a18;
                 font-family: "Arial", sans-serif;
                 -webkit-font-smoothing: antialiased;
                 -moz-osx-font-smoothing: grayscale;
@@ -115,6 +125,8 @@
 
             .staticrypt-title {
                 font-size: 1.5em;
+                color: #a0d4ff;
+                text-shadow: 0 0 10px rgba(100,180,255,0.8);
             }
 
             label.staticrypt-remember {
@@ -171,10 +183,39 @@
                     font-size: 16px;
                 }
             }
+
+            #starCanvas {
+                position: fixed; top: 0; left: 0;
+                width: 100%; height: 100%;
+                z-index: 0; pointer-events: none;
+            }
+            #fireworkPlanet {
+                position: fixed; z-index: 5; pointer-events: none;
+                animation: floatPlanet 6s ease-in-out infinite;
+            }
+            @keyframes floatPlanet {
+                0%, 100% { transform: translateY(0px) rotate(0deg); }
+                50%       { transform: translateY(-18px) rotate(3deg); }
+            }
+            .planet-label {
+                position: absolute; top: 50%; left: 50%;
+                transform: translate(-50%, -50%);
+                color: #fff; font-size: 13px; font-weight: bold;
+                text-align: center; line-height: 1.5;
+                text-shadow: 0 0 8px #ff9900, 0 0 16px #ff4400;
+                white-space: nowrap; letter-spacing: 1px;
+            }
+            .staticrypt-content { position: relative; z-index: 1; }
         </style>
     </head>
 
     <body class="staticrypt-body">
+    <canvas id="starCanvas"></canvas>
+    <div id="fireworkPlanet" style="width:180px;height:180px;left:72%;top:18%;">
+      <canvas id="planetCanvas" width="180" height="180"></canvas>
+      <div class="planet-label">请输入密码<br>后放开登录</div>
+    </div>
+
         <div id="staticrypt_loading" class="staticrypt-spinner-container">
             <div class="staticrypt-spinner"></div>
         </div>
@@ -888,5 +929,84 @@ exports.init = init;
                 }
             });
         </script>
-    </body>
+    
+    <script>
+    (function(){
+      var c=document.getElementById('starCanvas'),ctx=c.getContext('2d'),W,H,stars=[],shoots=[];
+      function resize(){ W=c.width=window.innerWidth; H=c.height=window.innerHeight; }
+      resize(); window.addEventListener('resize',resize);
+      for(var i=0;i<220;i++) stars.push({x:Math.random(),y:Math.random(),r:Math.random()*1.6+0.3,a:Math.random()*0.7+0.3,tw:Math.random()*Math.PI*2});
+      setInterval(function(){
+        shoots.push({x:Math.random()*W*0.7,y:Math.random()*H*0.3,len:Math.random()*120+60,sp:Math.random()*6+4,a:1,ang:Math.PI/6+Math.random()*0.3});
+      },2800);
+      function draw(){
+        ctx.clearRect(0,0,W,H);
+        var bg=ctx.createRadialGradient(W*.5,H*.3,50,W*.5,H*.5,Math.max(W,H));
+        bg.addColorStop(0,'#0a1535'); bg.addColorStop(1,'#020710');
+        ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+        var t=Date.now()/1000;
+        stars.forEach(function(s){
+          var tw=Math.sin(t*1.5+s.tw)*0.3;
+          var g=ctx.createRadialGradient(s.x*W,s.y*H,0,s.x*W,s.y*H,s.r*3);
+          g.addColorStop(0,'rgba(200,230,255,'+Math.min(1,s.a+tw)+')');
+          g.addColorStop(1,'rgba(100,160,255,0)');
+          ctx.beginPath(); ctx.arc(s.x*W,s.y*H,s.r,0,Math.PI*2);
+          ctx.fillStyle=g; ctx.fill();
+        });
+        shoots=shoots.filter(function(s){
+          ctx.save(); ctx.globalAlpha=s.a; ctx.strokeStyle='rgba(180,220,255,0.9)';
+          ctx.lineWidth=1.5; ctx.shadowColor='#88ccff'; ctx.shadowBlur=6;
+          ctx.beginPath(); ctx.moveTo(s.x,s.y);
+          ctx.lineTo(s.x-Math.cos(s.ang)*s.len,s.y-Math.sin(s.ang)*s.len);
+          ctx.stroke(); ctx.restore();
+          s.x+=Math.cos(s.ang)*s.sp; s.y+=Math.sin(s.ang)*s.sp; s.a-=0.018;
+          return s.a>0;
+        });
+        requestAnimationFrame(draw);
+      }
+      draw();
+    })();
+    (function(){
+      var pc=document.getElementById('planetCanvas'); if(!pc)return;
+      var ctx=pc.getContext('2d'),CX=90,CY=90,PR=42,sparks=[];
+      setInterval(function(){
+        for(var i=0;i<8;i++){
+          var a=Math.random()*Math.PI*2,sp=Math.random()*2.5+1.2;
+          sparks.push({x:CX+Math.cos(a)*PR,y:CY+Math.sin(a)*PR,
+            vx:Math.cos(a)*sp+(Math.random()-.5)*1.5,vy:Math.sin(a)*sp+(Math.random()-.5)*1.5,
+            life:1.0,r:Math.random()*2.2+0.8,hue:Math.random()*60+10});
+        }
+      },180);
+      function drawP(){
+        ctx.clearRect(0,0,180,180);
+        var glow=ctx.createRadialGradient(CX,CY,PR*.5,CX,CY,PR*2.2);
+        glow.addColorStop(0,'rgba(255,120,20,0.18)'); glow.addColorStop(1,'rgba(255,60,0,0)');
+        ctx.fillStyle=glow; ctx.fillRect(0,0,180,180);
+        var pg=ctx.createRadialGradient(CX-12,CY-12,4,CX,CY,PR);
+        pg.addColorStop(0,'#ff9955'); pg.addColorStop(0.5,'#cc3300'); pg.addColorStop(1,'#660011');
+        ctx.beginPath(); ctx.arc(CX,CY,PR,0,Math.PI*2); ctx.fillStyle=pg; ctx.fill();
+        ctx.save(); ctx.beginPath(); ctx.arc(CX,CY,PR,0,Math.PI*2); ctx.clip();
+        for(var i=-3;i<=3;i++){
+          ctx.beginPath(); ctx.ellipse(CX,CY+i*14,PR,5,0.2,0,Math.PI*2);
+          ctx.fillStyle='rgba(255,'+(80+i*15)+',0,0.08)'; ctx.fill();
+        }
+        ctx.restore();
+        var rim=ctx.createRadialGradient(CX-16,CY-16,2,CX,CY,PR);
+        rim.addColorStop(0,'rgba(255,200,120,0.5)'); rim.addColorStop(0.4,'rgba(255,100,30,0.1)'); rim.addColorStop(1,'rgba(0,0,0,0)');
+        ctx.beginPath(); ctx.arc(CX,CY,PR,0,Math.PI*2); ctx.fillStyle=rim; ctx.fill();
+        sparks=sparks.filter(function(s){
+          ctx.beginPath(); ctx.arc(s.x,s.y,s.r*s.life,0,Math.PI*2);
+          ctx.fillStyle='hsla('+s.hue+',100%,60%,'+s.life+')';
+          ctx.shadowColor='hsl('+s.hue+',100%,70%)'; ctx.shadowBlur=6;
+          ctx.fill(); ctx.shadowBlur=0;
+          s.x+=s.vx; s.y+=s.vy; s.vy+=0.04; s.life-=0.025;
+          return s.life>0;
+        });
+        requestAnimationFrame(drawP);
+      }
+      drawP();
+    })();
+    </script>
+
+</body>
 </html>
