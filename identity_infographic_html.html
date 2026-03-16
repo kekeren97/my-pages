@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>为什么只有微软把身份系统卖成了一门大生意？</title>
+  <style>
+    :root {
+      --bg: #f5f7fa;
+      --surface: rgba(255,255,255,0.88);
+      --surface-strong: #ffffff;
+      --text: #111827;
+      --muted: #667085;
+      --line: rgba(15, 23, 42, 0.08);
+      --blue: #0078d4;
+      --blue-dark: #005a9e;
+      --blue-soft: #eaf4ff;
+      --cyan-soft: #eef9ff;
+      --shadow: 0 18px 48px rgba(15, 23, 42, 0.08);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 16px;
+      --max: 1180px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: "Inter", "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(0,120,212,0.10), transparent 32%),
+        radial-gradient(circle at top right, rgba(0,120,212,0.08), transparent 26%),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .wrap {
+      width: min(var(--max), calc(100% - 40px));
+      margin: 0 auto;
+    }
+
+    .section {
+      padding: 32px 0;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.82);
+      border: 1px solid rgba(255,255,255,0.6);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 24px rgba(15,23,42,.06);
+      color: var(--blue-dark);
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: .02em;
+    }
+
+    .hero {
+      padding: 52px 0 26px;
+    }
+
+    .hero-card {
+      position: relative;
+      overflow: hidden;
+      border-radius: 36px;
+      padding: 44px;
+      background: linear-gradient(135deg, #ffffff 0%, #f4f9ff 52%, #eef6ff 100%);
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(255,255,255,0.7);
+    }
+
+    .hero-card::before,
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      filter: blur(6px);
+      pointer-events: none;
+    }
+
+    .hero-card::before {
+      width: 320px;
+      height: 320px;
+      right: -100px;
+      top: -100px;
+      background: radial-gradient(circle, rgba(0,120,212,0.18), transparent 68%);
+    }
+
+    .hero-card::after {
+      width: 240px;
+      height: 240px;
+      left: -70px;
+      bottom: -70px;
+      background: radial-gradient(circle, rgba(0,120,212,0.10), transparent 70%);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 28px;
+      align-items: stretch;
+      position: relative;
+      z-index: 1;
+    }
+
+    h1 {
+      margin: 18px 0 14px;
+      font-size: clamp(34px, 5vw, 58px);
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+    }
+
+    .hero-sub {
+      max-width: 720px;
+      font-size: 18px;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    .hero-points {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 28px;
+    }
+
+    .mini-pill {
+      background: rgba(255,255,255,0.88);
+      border: 1px solid rgba(15,23,42,0.06);
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: 0 10px 24px rgba(15,23,42,.05);
+    }
+
+    .mini-pill strong {
+      display: block;
+      font-size: 15px;
+      margin-bottom: 4px;
+    }
+
+    .mini-pill span {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .hero-side {
+      display: grid;
+      align-content: stretch;
+      gap: 14px;
+    }
+
+    .glass-card {
+      background: rgba(255,255,255,0.82);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.7);
+      border-radius: 24px;
+      padding: 22px;
+      box-shadow: 0 10px 28px rgba(15,23,42,.05);
+    }
+
+    .identity-flow {
+      display: grid;
+      gap: 12px;
+    }
+
+    .flow-node {
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, #ffffff 0%, #f6faff 100%);
+      border: 1px solid rgba(0,120,212,0.10);
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .flow-arrow {
+      text-align: center;
+      font-size: 22px;
+      color: var(--blue);
+      line-height: 1;
+      font-weight: 700;
+    }
+
+    .section-title {
+      margin: 0 0 10px;
+      font-size: clamp(26px, 3.2vw, 40px);
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+    }
+
+    .section-desc {
+      margin: 0 0 24px;
+      max-width: 780px;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .grid-2, .grid-3, .grid-4 {
+      display: grid;
+      gap: 18px;
+    }
+
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid rgba(255,255,255,0.72);
+      backdrop-filter: blur(10px);
+      border-radius: var(--radius-xl);
+      padding: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .card-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(180deg, #f2f8ff 0%, #e9f3ff 100%);
+      color: var(--blue-dark);
+      font-size: 24px;
+      margin-bottom: 14px;
+    }
+
+    .card h3 {
+      margin: 0 0 8px;
+      font-size: 21px;
+      line-height: 1.22;
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .label {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--blue-soft);
+      color: var(--blue-dark);
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+
+    .compare-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .compare-title {
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .compare-badge {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--blue-dark);
+      background: var(--cyan-soft);
+      padding: 6px 10px;
+      border-radius: 999px;
+    }
+
+    .stack-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .stack-item {
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.8);
+      border: 1px solid rgba(15,23,42,0.06);
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    .stack-item strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 14px;
+    }
+
+    .banner {
+      margin-top: 18px;
+      padding: 16px 18px;
+      border-radius: 20px;
+      background: linear-gradient(90deg, #f3f8ff 0%, #edf7ff 100%);
+      border: 1px solid rgba(0,120,212,.10);
+      color: var(--blue-dark);
+      font-weight: 800;
+      font-size: 16px;
+    }
+
+    .reason-grid .card {
+      min-height: 245px;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 16px;
+      margin-top: 8px;
+    }
+
+    .timeline-row {
+      display: grid;
+      grid-template-columns: 96px 18px 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .timeline-year {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--blue-dark);
+      padding-top: 2px;
+    }
+
+    .timeline-dot {
+      width: 18px;
+      position: relative;
+      display: flex;
+      justify-content: center;
+    }
+
+    .timeline-dot::before {
+      content: "";
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      background: var(--blue);
+      margin-top: 5px;
+      z-index: 2;
+    }
+
+    .timeline-dot::after {
+      content: "";
+      position: absolute;
+      top: 18px;
+      bottom: -18px;
+      width: 2px;
+      background: rgba(0,120,212,.18);
+      left: 8px;
+    }
+
+    .timeline-row:last-child .timeline-dot::after { display: none; }
+
+    .timeline-content {
+      background: rgba(255,255,255,0.8);
+      border: 1px solid rgba(15,23,42,0.06);
+      border-radius: 16px;
+      padding: 14px 16px;
+    }
+
+    .timeline-content strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 15px;
+    }
+
+    .platform-board {
+      border-radius: 34px;
+      padding: 28px;
+      background: linear-gradient(180deg, #f9fcff 0%, #eef6ff 100%);
+      border: 1px solid rgba(255,255,255,0.76);
+      box-shadow: var(--shadow);
+    }
+
+    .platform-title {
+      margin-bottom: 18px;
+      font-size: 28px;
+      line-height: 1.18;
+      letter-spacing: -0.03em;
+    }
+
+    .plane {
+      padding: 22px;
+      border-radius: 26px;
+    }
+
+    .control-plane {
+      background: linear-gradient(135deg, #0067b8 0%, #0d84dd 100%);
+      color: #fff;
+      margin-bottom: 16px;
+    }
+
+    .data-plane {
+      background: #ffffff;
+      border: 1px solid rgba(15,23,42,0.06);
+    }
+
+    .plane-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .plane-top strong {
+      font-size: 20px;
+    }
+
+    .plane-top span {
+      font-size: 13px;
+      opacity: .82;
+    }
+
+    .pill-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap: 14px;
+    }
+
+    .plane-pill {
+      padding: 16px;
+      border-radius: 18px;
+      font-weight: 800;
+      min-height: 96px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .control-plane .plane-pill {
+      background: rgba(255,255,255,0.14);
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .data-plane .plane-pill {
+      background: linear-gradient(180deg, #fafcff 0%, #f3f7fb 100%);
+      border: 1px solid rgba(15,23,42,0.06);
+    }
+
+    .plane-pill small {
+      font-size: 12px;
+      font-weight: 600;
+      opacity: .85;
+    }
+
+    .pyramid {
+      display: grid;
+      gap: 14px;
+      align-items: center;
+      max-width: 920px;
+      margin: 0 auto;
+    }
+
+    .pyramid-level {
+      text-align: center;
+      padding: 22px 26px;
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      font-weight: 800;
+      font-size: 18px;
+      letter-spacing: -0.02em;
+    }
+
+    .pyramid-level span {
+      display: block;
+      margin-top: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--muted);
+    }
+
+    .level-1 { width: 48%; margin: 0 auto; background: linear-gradient(180deg, #dceeff 0%, #cbe4ff 100%); }
+    .level-2 { width: 72%; margin: 0 auto; background: linear-gradient(180deg, #edf6ff 0%, #deefff 100%); }
+    .level-3 { width: 100%; background: linear-gradient(180deg, #ffffff 0%, #f7f9fc 100%); }
+
+    .future-flow {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 18px;
+      align-items: center;
+    }
+
+    .chip-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .chip {
+      padding: 14px 16px;
+      border-radius: 16px;
+      font-weight: 700;
+      background: rgba(255,255,255,0.82);
+      border: 1px solid rgba(15,23,42,0.06);
+      box-shadow: 0 10px 24px rgba(15,23,42,.05);
+      text-align: center;
+    }
+
+    .big-arrow {
+      font-size: 40px;
+      color: var(--blue);
+      font-weight: 800;
+    }
+
+    .quote-end {
+      background: linear-gradient(135deg, #0a5fa8 0%, #0078d4 100%);
+      color: #fff;
+      border-radius: 36px;
+      padding: 38px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .quote-end::after {
+      content: "";
+      position: absolute;
+      right: -80px;
+      top: -80px;
+      width: 260px;
+      height: 260px;
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(255,255,255,0.20), transparent 68%);
+    }
+
+    .quote-end .small-title {
+      font-size: 14px;
+      text-transform: lowercase;
+      letter-spacing: .18em;
+      opacity: .86;
+      margin-bottom: 14px;
+      font-weight: 700;
+    }
+
+    .quote-end .big-line {
+      font-size: clamp(28px, 4vw, 48px);
+      line-height: 1.15;
+      font-weight: 900;
+      max-width: 900px;
+      letter-spacing: -0.03em;
+      margin-bottom: 18px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .quote-end .sub-line {
+      font-size: 18px;
+      opacity: .92;
+      position: relative;
+      z-index: 1;
+    }
+
+    .footer-note {
+      padding: 18px 0 44px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    @media (max-width: 1100px) {
+      .hero-grid,
+      .grid-4,
+      .pill-grid,
+      .future-flow,
+      .grid-3,
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-points {
+        grid-template-columns: 1fr;
+      }
+
+      .timeline-row {
+        grid-template-columns: 72px 18px 1fr;
+      }
+
+      .future-flow { text-align: center; }
+      .big-arrow { transform: rotate(90deg); }
+      .level-1, .level-2, .level-3 { width: 100%; }
+    }
+
+    @media (max-width: 700px) {
+      .wrap { width: min(var(--max), calc(100% - 24px)); }
+      .hero { padding-top: 24px; }
+      .hero-card { padding: 24px; border-radius: 28px; }
+      .card, .platform-board, .quote-end { padding: 22px; }
+      .section { padding: 22px 0; }
+      h1 { font-size: 34px; }
+      .section-title { font-size: 28px; }
+      .platform-title { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap hero">
+    <section class="hero-card">
+      <div class="hero-grid">
+        <div>
+          <div class="eyebrow">Identity × SaaS × 平台控制权</div>
+          <h1>为什么只有微软<br>把“身份系统”卖成了一门大生意？</h1>
+          <p class="hero-sub">
+            这不是一个单纯的安全产品故事，而是一个关于默认身份源、平台控制面、生态标准化与“平台税”如何成立的商业化问题。
+          </p>
+
+          <div class="hero-points">
+            <div class="mini-pill">
+              <strong>核心判断 01</strong>
+              <span>Identity 能独立售卖，本质上是控制层产品成立。</span>
+            </div>
+            <div class="mini-pill">
+              <strong>核心判断 02</strong>
+              <span>中国 IAM 多数仍是项目型集成生意，而不是订阅型平台。</span>
+            </div>
+            <div class="mini-pill">
+              <strong>核心判断 03</strong>
+              <span>微软成功，不只是产品强，而是成为了企业默认身份源。</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-side">
+          <div class="glass-card">
+            <div class="label">问题浓缩</div>
+            <div class="identity-flow">
+              <div class="flow-node">用户 / 员工 / AI Agent</div>
+              <div class="flow-arrow">↓</div>
+              <div class="flow-node">Identity 身份系统</div>
+              <div class="flow-arrow">↓</div>
+              <div class="flow-node">Office · SaaS · 内部系统</div>
+            </div>
+          </div>
+
+          <div class="glass-card">
+            <div class="label">一句话结论</div>
+            <div style="font-size: 24px; font-weight: 900; line-height: 1.2; letter-spacing: -.03em;">
+              谁控制 Identity，<br>谁就更接近控制 SaaS 生态。
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="wrap">
+    <section class="section">
+      <h2 class="section-title">先看市场：全球 IAM 玩家，其实活在三种完全不同的逻辑里</h2>
+      <p class="section-desc">
+        同样叫“身份系统”，平台型 IAM、SaaS 型 IAM 与中国本土 IAM 的商业化路径并不相同。
+      </p>
+      <div class="grid-3">
+        <div class="card">
+          <div class="compare-head">
+            <div class="compare-title">微软 Entra</div>
+            <div class="compare-badge">平台型</div>
+          </div>
+          <div class="stack-list">
+            <div class="stack-item"><strong>默认身份源</strong>Office / Azure / Windows 用户天然沉淀到身份层。</div>
+            <div class="stack-item"><strong>商业模式</strong>基础免费绑定生态，高级安全与治理能力分层收费。</div>
+            <div class="stack-item"><strong>核心价值</strong>控制面入口，而不是单点认证工具。</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="compare-head">
+            <div class="compare-title">Okta / Ping</div>
+            <div class="compare-badge">SaaS 型</div>
+          </div>
+          <div class="stack-list">
+            <div class="stack-item"><strong>生态前提</strong>依赖 SaaS 标准协议成熟，适合多系统统一登录。</div>
+            <div class="stack-item"><strong>商业模式</strong>按用户或企业规模订阅，强调标准化接入。</div>
+            <div class="stack-item"><strong>核心价值</strong>让企业跨 SaaS 管理账号、权限与访问。</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="compare-head">
+            <div class="compare-title">中国 IAM 厂商</div>
+            <div class="compare-badge">项目型</div>
+          </div>
+          <div class="stack-list">
+            <div class="stack-item"><strong>典型玩家</strong>竹云、派拉、Authing、九州云腾等。</div>
+            <div class="stack-item"><strong>商业模式</strong>产品 + 咨询 + 集成 + 定制 + 运维。</div>
+            <div class="stack-item"><strong>核心现实</strong>更多是安全项目的一环，而不是平台级订阅产品。</div>
+          </div>
+        </div>
+      </div>
+      <div class="banner">全球 IAM = 平台产品；中国 IAM = 更接近安全集成项目。</div>
+    </section>
+
+    <section class="section reason-grid">
+      <h2 class="section-title">中国 IAM 为什么始终难以做成“大平台”？</h2>
+      <p class="section-desc">
+        问题不只在产品，而在生态协议、系统结构与采购方式三方面同时受限。
+      </p>
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-icon">🔌</div>
+          <h3>协议不统一</h3>
+          <p>
+            欧美 SaaS 大量支持 SAML / OIDC / SCIM，接入一个身份系统就能走通很多应用。
+            而国内大量系统认证方式各自为政，第三方难以标准化集成。
+          </p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🧩</div>
+          <h3>账号体系碎片化</h3>
+          <p>
+            OA、ERP、CRM、HR、门户常常各自维护账号与权限，IAM 厂商必须按客户逐个对接，
+            很难形成真正的平台复用与规模效应。
+          </p>
+        </div>
+        <div class="card">
+          <div class="card-icon">📄</div>
+          <h3>采购逻辑偏项目制</h3>
+          <p>
+            企业通常不会单独立项买“IDaaS”，而是在等保、信创、零信任、大型安全改造项目里顺带采购，
+            于是身份层更像子模块，而不是独立品类。
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">微软为什么能成？关键不只是产品，而是它先占住了默认身份源</h2>
+      <p class="section-desc">
+        微软的身份体系不是“卖出去”的，而是在企业软件入口里自然长出来的。
+      </p>
+      <div class="grid-2">
+        <div class="card">
+          <div class="label">默认身份源</div>
+          <h3 style="font-size: 30px; margin-top: 0; line-height: 1.12; letter-spacing: -.03em;">Office 用户<br>= Entra 用户</h3>
+          <p>
+            企业一旦开始使用 Microsoft 365、Azure、Windows 生态，身份层就自动成为底座。
+            Entra 的高级版收费，建立在巨大的免费基础用户盘之上。
+          </p>
+        </div>
+        <div class="card">
+          <div class="label">历史演进</div>
+          <div class="timeline">
+            <div class="timeline-row">
+              <div class="timeline-year">1999</div>
+              <div class="timeline-dot"></div>
+              <div class="timeline-content"><strong>Active Directory</strong>企业本地网络时代的身份与域控制核心。</div>
+            </div>
+            <div class="timeline-row">
+              <div class="timeline-year">2010</div>
+              <div class="timeline-dot"></div>
+              <div class="timeline-content"><strong>Azure AD</strong>把传统 AD 能力迁移到云端，开始覆盖云应用访问控制。</div>
+            </div>
+            <div class="timeline-row">
+              <div class="timeline-year">2023</div>
+              <div class="timeline-dot"></div>
+              <div class="timeline-content"><strong>Entra ID</strong>不再只是账号目录，而成为更完整的身份与访问平台品牌。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-4" style="margin-top: 18px;">
+        <div class="card">
+          <div class="card-icon">🎯</div>
+          <h3>控制企业入口</h3>
+          <p>Windows、Office、Azure 共同构成企业数字工作入口，身份自然成为底层控制层。</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🆓</div>
+          <h3>Free → Premium</h3>
+          <p>基础身份免费，条件访问、身份保护、特权管理等能力再分层收费，SKU 逻辑非常清晰。</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🌐</div>
+          <h3>生态标准优势</h3>
+          <p>欧美 SaaS 大量支持标准协议，微软身份系统可以轻松外延到更多第三方服务。</p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🏢</div>
+          <h3>企业习惯延续</h3>
+          <p>从本地 AD 到云端 Entra，用户教育成本低，组织迁移更平滑，历史红利巨大。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="platform-board">
+        <div class="label">视觉核心模块</div>
+        <div class="platform-title">微软卖的不是单点认证，而是一个完整的企业控制系统</div>
+
+        <div class="plane control-plane">
+          <div class="plane-top">
+            <strong>Control Plane｜控制面</strong>
+            <span>谁掌控这里，谁更接近掌控企业软件入口</span>
+          </div>
+          <div class="pill-grid">
+            <div class="plane-pill">Identity / Entra<small>身份与访问控制</small></div>
+            <div class="plane-pill">Security / Defender<small>安全检测与防护</small></div>
+            <div class="plane-pill">Compliance / Purview<small>治理、合规与审计</small></div>
+            <div class="plane-pill">Device / Intune<small>设备、终端与策略管理</small></div>
+          </div>
+        </div>
+
+        <div class="plane data-plane">
+          <div class="plane-top">
+            <strong>Data Plane｜数据面</strong>
+            <span>真正承载内容、协作、业务流的应用层</span>
+          </div>
+          <div class="pill-grid">
+            <div class="plane-pill">Office<small>文档、表格、演示</small></div>
+            <div class="plane-pill">Teams<small>沟通与协作</small></div>
+            <div class="plane-pill">SharePoint<small>内容与站点管理</small></div>
+            <div class="plane-pill">OneDrive<small>个人文件与存储</small></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">为什么飞书、钉钉、Google 都没做到微软这个级别？</h2>
+      <p class="section-desc">
+        不是它们没有身份能力，而是它们没真正占住“企业默认身份源 + 控制面入口”这个位置。
+      </p>
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-icon">💬</div>
+          <h3>飞书 / 钉钉</h3>
+          <p>
+            它们的身份能力更多嵌在通讯录、组织架构、应用管理中，本质仍服务于协作产品，
+            还没有强到能脱离协作主产品，单独形成平台税能力。
+          </p>
+        </div>
+        <div class="card">
+          <div class="card-icon">📧</div>
+          <h3>Google</h3>
+          <p>
+            Google 有 Cloud Identity，但在企业端缺乏像 Windows + AD 那样的长期设备控制与历史基础，
+            更强的是互联网账号，而不是企业控制面。
+          </p>
+        </div>
+        <div class="card">
+          <div class="card-icon">🧠</div>
+          <h3>真正差的是位置</h3>
+          <p>
+            微软身份层站在企业 IT 入口之上；其他厂商多数站在单个协作应用之内。
+            这决定了 Identity 能否被单独商业化。
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">从商业模型看，能单独卖钱的，其实只有“控制层产品”</h2>
+      <p class="section-desc">
+        如果把企业软件抽象为三层，你会发现 Identity 属于最容易产生平台税的位置。
+      </p>
+      <div class="pyramid">
+        <div class="pyramid-level level-1">Control Layer<span>Identity · Security · Governance</span></div>
+        <div class="pyramid-level level-2">Data Layer<span>Office · CRM · ERP · 协作应用</span></div>
+        <div class="pyramid-level level-3">Compute Layer<span>Cloud · GPU · 基础算力与底层资源</span></div>
+      </div>
+      <div class="banner">只有当产品位于控制层，才更容易形成“平台税”式独立收费。</div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">下一阶段：AI 会让 Identity 变得更重要，而不是更不重要</h2>
+      <p class="section-desc">
+        未来企业里不止有员工账号，还会有 AI Agent、自动化流程与机器身份，身份层的重要性会被继续放大。
+      </p>
+      <div class="future-flow">
+        <div class="card">
+          <div class="label">新的主体</div>
+          <div class="chip-list">
+            <div class="chip">员工</div>
+            <div class="chip">AI Agent</div>
+            <div class="chip">自动化程序</div>
+          </div>
+        </div>
+        <div class="big-arrow">→</div>
+        <div class="card">
+          <div class="label">必须回答的问题</div>
+          <div class="chip-list">
+            <div class="chip">谁可以访问什么？</div>
+            <div class="chip">谁可以代表谁执行？</div>
+            <div class="chip">谁的行为需要被审计？</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="quote-end">
+        <div class="small-title">final conclusion</div>
+        <div class="big-line">
+          Identity 之所以可以被单独售卖，<br>
+          不是因为“身份认证”本身复杂，<br>
+          而是因为它占住了企业系统的控制入口。
+        </div>
+        <div class="sub-line">谁控制 Identity，谁就更接近控制整个 SaaS 生态。</div>
+      </div>
+    </section>
+
+    <div class="footer-note">
+      信息图结构建议：适合导出长图，用于公众号、小红书、内部战略讨论。
+    </div>
+  </div>
+</body>
+</html>
