@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI计量体系转型分析：从碎片化到算粒化</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep: #0a0e1a;
+    --bg-card: #111827;
+    --bg-card-hover: #1a2332;
+    --bg-highlight: rgba(99, 179, 237, 0.06);
+    --text-primary: #e8edf5;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --accent-blue: #60a5fa;
+    --accent-cyan: #22d3ee;
+    --accent-amber: #fbbf24;
+    --accent-red: #f87171;
+    --accent-green: #4ade80;
+    --accent-purple: #a78bfa;
+    --border-subtle: rgba(148, 163, 184, 0.1);
+    --border-accent: rgba(96, 165, 250, 0.3);
+    --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.3);
+    --shadow-glow: 0 0 40px rgba(96, 165, 250, 0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html {
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: var(--text-muted) transparent;
+  }
+
+  body {
+    font-family: 'Noto Sans SC', sans-serif;
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    line-height: 1.8;
+    font-weight: 300;
+    min-height: 100vh;
+  }
+
+  /* ===== NAVIGATION ===== */
+  .nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background: rgba(10, 14, 26, 0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border-subtle);
+    padding: 0 2rem;
+    transition: all 0.3s ease;
+  }
+
+  .nav-inner {
+    max-width: 960px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    height: 56px;
+    gap: 2rem;
+  }
+
+  .nav-logo {
+    font-family: 'Noto Serif SC', serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--accent-blue);
+    white-space: nowrap;
+    letter-spacing: 0.02em;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 0.25rem;
+    overflow-x: auto;
+  }
+
+  .nav-links a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.8rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: 6px;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    font-weight: 400;
+  }
+
+  .nav-links a:hover,
+  .nav-links a.active {
+    color: var(--text-primary);
+    background: rgba(96, 165, 250, 0.1);
+  }
+
+  /* ===== HERO ===== */
+  .hero {
+    padding: 8rem 2rem 4rem;
+    max-width: 960px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: 60px;
+    left: -200px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(96, 165, 250, 0.04) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-label {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--accent-cyan);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    padding: 0.3rem 0.8rem;
+    border: 1px solid rgba(34, 211, 238, 0.2);
+    border-radius: 4px;
+    background: rgba(34, 211, 238, 0.05);
+  }
+
+  .hero h1 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 2.4rem;
+    font-weight: 900;
+    line-height: 1.35;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-blue) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-subtitle {
+    font-size: 1.05rem;
+    color: var(--text-secondary);
+    line-height: 1.9;
+    max-width: 720px;
+  }
+
+  .hero-meta {
+    margin-top: 2rem;
+    display: flex;
+    gap: 2rem;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  .hero-meta span {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  /* ===== MAIN CONTENT ===== */
+  .content {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 2rem 6rem;
+  }
+
+  /* ===== SECTION ===== */
+  .section {
+    margin-bottom: 5rem;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .section-number {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: rgba(96, 165, 250, 0.15);
+    line-height: 1;
+    flex-shrink: 0;
+  }
+
+  .section-title {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.4;
+  }
+
+  /* ===== PARAGRAPHS ===== */
+  .prose {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    line-height: 2;
+    margin-bottom: 1.5rem;
+  }
+
+  .prose strong {
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  /* ===== SUBSECTION ===== */
+  .subsection {
+    margin-bottom: 2.5rem;
+  }
+
+  .subsection-title {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    padding-left: 0.8rem;
+    border-left: 3px solid var(--accent-blue);
+  }
+
+  .subsection-title.amber { border-left-color: var(--accent-amber); }
+  .subsection-title.red { border-left-color: var(--accent-red); }
+  .subsection-title.green { border-left-color: var(--accent-green); }
+  .subsection-title.purple { border-left-color: var(--accent-purple); }
+  .subsection-title.cyan { border-left-color: var(--accent-cyan); }
+
+  /* ===== INSIGHT CARDS ===== */
+  .insight-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 1.5rem 1.8rem;
+    margin-bottom: 1.2rem;
+    box-shadow: var(--shadow-card);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .insight-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+    border-radius: 3px 0 0 3px;
+  }
+
+  .insight-card.blue::before { background: var(--accent-blue); }
+  .insight-card.amber::before { background: var(--accent-amber); }
+  .insight-card.red::before { background: var(--accent-red); }
+  .insight-card.green::before { background: var(--accent-green); }
+  .insight-card.purple::before { background: var(--accent-purple); }
+  .insight-card.cyan::before { background: var(--accent-cyan); }
+
+  .insight-card:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--border-accent);
+    transform: translateY(-1px);
+  }
+
+  .insight-card h4 {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 0.6rem;
+  }
+
+  .insight-card p {
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    line-height: 1.85;
+  }
+
+  /* ===== TIMELINE ===== */
+  .timeline {
+    position: relative;
+    padding-left: 2rem;
+    margin: 2rem 0;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--accent-blue), var(--accent-cyan), var(--accent-green));
+    border-radius: 2px;
+  }
+
+  .timeline-item {
+    position: relative;
+    margin-bottom: 2.5rem;
+    padding-left: 1.5rem;
+  }
+
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -2.35rem;
+    top: 0.5rem;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid var(--accent-blue);
+    background: var(--bg-deep);
+  }
+
+  .timeline-item:nth-child(2)::before { border-color: var(--accent-cyan); }
+  .timeline-item:nth-child(3)::before { border-color: var(--accent-green); }
+
+  .timeline-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .timeline-item:nth-child(1) .timeline-label { color: var(--accent-blue); }
+  .timeline-item:nth-child(2) .timeline-label { color: var(--accent-cyan); }
+  .timeline-item:nth-child(3) .timeline-label { color: var(--accent-green); }
+
+  .timeline-title {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.6rem;
+  }
+
+  .timeline-text {
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    line-height: 1.85;
+  }
+
+  /* ===== DILEMMA GRID ===== */
+  .dilemma-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.2rem;
+    margin: 1.5rem 0;
+  }
+
+  .dilemma-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 1.5rem 1.5rem 1.5rem 1.8rem;
+    box-shadow: var(--shadow-card);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .dilemma-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+    border-radius: 3px 0 0 3px;
+  }
+
+  .dilemma-card.red::before { background: var(--accent-red); }
+  .dilemma-card.amber::before { background: var(--accent-amber); }
+  .dilemma-card.purple::before { background: var(--accent-purple); }
+  .dilemma-card.blue::before { background: var(--accent-blue); }
+
+  .dilemma-card:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--border-accent);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-glow);
+  }
+
+  .dilemma-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.8rem;
+    line-height: 1;
+  }
+
+  .dilemma-card h4 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.7rem;
+    line-height: 1.4;
+  }
+
+  .dilemma-card p {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    line-height: 1.85;
+    flex: 1;
+  }
+
+  @media (max-width: 768px) {
+    .dilemma-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ===== CALLOUT ===== */
+  .callout {
+    background: var(--bg-highlight);
+    border: 1px solid var(--border-accent);
+    border-radius: 10px;
+    padding: 1.3rem 1.5rem;
+    margin: 1.5rem 0;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.85;
+  }
+
+  .callout strong {
+    color: var(--accent-blue);
+    font-weight: 500;
+  }
+
+  .callout.warn {
+    background: rgba(251, 191, 36, 0.05);
+    border-color: rgba(251, 191, 36, 0.2);
+  }
+
+  .callout.warn strong {
+    color: var(--accent-amber);
+  }
+
+  /* ===== STEP CARDS ===== */
+  .step-grid {
+    display: grid;
+    gap: 1.2rem;
+    margin: 1.5rem 0;
+  }
+
+  .step-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 1.5rem 1.8rem;
+    box-shadow: var(--shadow-card);
+    transition: all 0.3s ease;
+  }
+
+  .step-card:hover {
+    border-color: var(--border-accent);
+    box-shadow: var(--shadow-glow);
+  }
+
+  .step-card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 1rem;
+  }
+
+  .step-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    font-family: 'Noto Serif SC', serif;
+  }
+
+  .step-badge.s1 { background: rgba(96, 165, 250, 0.15); color: var(--accent-blue); }
+  .step-badge.s2 { background: rgba(34, 211, 238, 0.15); color: var(--accent-cyan); }
+  .step-badge.s3 { background: rgba(74, 222, 128, 0.15); color: var(--accent-green); }
+  .step-badge.s4 { background: rgba(167, 139, 250, 0.15); color: var(--accent-purple); }
+
+  .step-card-title {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .step-card p {
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    line-height: 1.85;
+  }
+
+  /* ===== VALUE SECTION ===== */
+  .value-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.2rem;
+    margin: 1.5rem 0;
+  }
+
+  .value-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow-card);
+  }
+
+  .value-card h4 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.6rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .value-card h4 .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .value-card p {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.85;
+  }
+
+  /* ===== COMPARISON LAYOUT ===== */
+  .compare-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    margin: 2rem 0;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-card);
+  }
+
+  .compare-col {
+    padding: 1.8rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+
+  .compare-col.positive {
+    background: rgba(74, 222, 128, 0.03);
+    border-right: 1px solid var(--border-subtle);
+  }
+
+  .compare-col.negative {
+    background: rgba(251, 191, 36, 0.03);
+  }
+
+  .compare-header {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid var(--border-subtle);
+    margin-bottom: 0.4rem;
+  }
+
+  .compare-header-icon {
+    font-size: 1.1rem;
+  }
+
+  .compare-header h3 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .compare-header.positive h3 { color: var(--accent-green); }
+  .compare-header.negative h3 { color: var(--accent-amber); }
+
+  .compare-item {
+    padding: 0.9rem 1rem;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(148, 163, 184, 0.06);
+    transition: all 0.2s ease;
+  }
+
+  .compare-item:hover {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: var(--border-subtle);
+  }
+
+  .compare-item h4 {
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 0.4rem;
+  }
+
+  .compare-col.positive .compare-item h4::before {
+    content: '✓ ';
+    color: var(--accent-green);
+    font-weight: 700;
+  }
+
+  .compare-col.negative .compare-item h4::before {
+    content: '✗ ';
+    color: var(--accent-amber);
+    font-weight: 700;
+  }
+
+  .compare-item p {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    line-height: 1.8;
+  }
+
+  @media (max-width: 768px) {
+    .compare-container { grid-template-columns: 1fr; }
+    .compare-col.positive { border-right: none; border-bottom: 1px solid var(--border-subtle); }
+  }
+
+  /* ===== DIVIDER ===== */
+  .divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--border-subtle), transparent);
+    margin: 3rem 0;
+  }
+
+  /* ===== FOOTER ===== */
+  .footer {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 2rem;
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 768px) {
+    .hero h1 { font-size: 1.8rem; }
+    .section-number { font-size: 2rem; }
+    .section-title { font-size: 1.25rem; }
+    .value-grid { grid-template-columns: 1fr; }
+    .hero-meta { flex-direction: column; gap: 0.5rem; }
+    .nav-links { display: none; }
+  }
+
+  /* ===== ANIMATIONS ===== */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .section {
+    animation: fadeInUp 0.6s ease both;
+  }
+
+  .section:nth-child(1) { animation-delay: 0.1s; }
+  .section:nth-child(2) { animation-delay: 0.2s; }
+  .section:nth-child(3) { animation-delay: 0.3s; }
+</style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="nav-logo">AI计量转型</div>
+    <div class="nav-links">
+      <a href="#current">WPS现状</a>
+      <a href="#feishu">飞书演进</a>
+      <a href="#solution">解决建议</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<header class="hero">
+  <div class="hero-label">内部分析 · AI商业化</div>
+  <h1>AI计量体系转型：<br>从碎片化到算粒化的路径</h1>
+  <p class="hero-subtitle">
+    当AI能力越来越多，按单点能力分散计量的模式正在成为用户认知、销售效率和产品扩展的系统性瓶颈。本文从WPS现状出发，参考飞书的演进经验，探讨一条务实的转型路径。
+  </p>
+  <div class="hero-meta">
+    <span>📄 约 3500 字</span>
+    <span>🕐 阅读约 10 分钟</span>
+  </div>
+</header>
+
+<!-- Content -->
+<main class="content">
+
+  <!-- ==================== SECTION 1 ==================== -->
+  <section class="section" id="current">
+    <div class="section-header">
+      <div class="section-number">01</div>
+      <h2 class="section-title">WPS现状与弊端：碎片化计量的四重困境</h2>
+    </div>
+
+    <p class="prose">
+      WPS当前的AI功能计量体系是典型的<strong>"各能力各自为政"</strong>模式。以公有云三个商业版本的权益表为例：AI阅读助手模块下，全文总结是✓/✗开关型权益，文档问答是"200次/人/月"的次数限制，AI翻译和AI总结又回到✓/✗。智能文档库模块下，智能问答变成了"企业上限100次"或"20次×购买人数"或"100次×购买人数"——同一类能力在不同模块、不同版本下的计量维度和口径完全不同。
+    </p>
+
+    <p class="prose">
+      这套体系在AI能力只有3~5个的早期是可以接受的，但当AI能力持续扩展到10个、15个、20个时，它正在造成四重系统性困境：
+    </p>
+
+    <div class="dilemma-grid">
+      <div class="dilemma-card red">
+        <div class="dilemma-icon">🧠</div>
+        <h4>困境一：用户认知成本极高</h4>
+        <p>
+          同样是"AI问答"，在阅读助手里是200次/人/月，在智能文档库里变成20次×购买人数。计量维度混杂——按次、按人、企业总量、人均额度——用户面对权益表的第一反应不是"我能用什么"，而是"我要算什么"。
+        </p>
+      </div>
+
+      <div class="dilemma-card amber">
+        <div class="dilemma-icon">💬</div>
+        <h4>困境二：销售端解释成本高</h4>
+        <p>
+          售前和方案团队报价时需逐条解释每个AI能力的计量方式。客户往往在理解权益表之前就已经失去耐心。报价工具能缓解执行层面的效率，但无法解决SKU设计层面的复杂度根因。
+        </p>
+      </div>
+
+      <div class="dilemma-card purple">
+        <div class="dilemma-icon">🧩</div>
+        <h4>困境三：SKU扩展性差</h4>
+        <p>
+          每上一个新AI能力，就得重新定计量规则、加一行权益表、改一轮合同模板。不同能力的计量维度不同，版本间的差异变成了密密麻麻的功能矩阵表，而不是一个清晰的价值阶梯。
+        </p>
+      </div>
+
+      <div class="dilemma-card blue">
+        <div class="dilemma-icon">📉</div>
+        <h4>困境四：用户行为被扭曲</h4>
+        <p>
+          每个能力独立额度时，用户会"省着用"——碎片额度压低AI功能活跃度，活跃度低又影响续约——"这个AI我都没怎么用，续约为什么要付钱？"。本应促进使用的AI能力，反而变成心理负担。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ==================== SECTION 2 ==================== -->
+  <section class="section" id="feishu">
+    <div class="section-header">
+      <div class="section-number">02</div>
+      <h2 class="section-title">飞书的演进历程：一部"还债史"</h2>
+    </div>
+
+    <p class="prose">
+      飞书踩过和WPS一模一样的坑。它的AI计量体系并非一开始就有统一设计，而是经历了三个清晰的演进阶段——每一步都是对前一步"技术债"的修补。
+    </p>
+
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-label">阶段一</div>
+        <div class="timeline-title">各产品线独立上AI，各自定计量</div>
+        <div class="timeline-text">
+          妙记做语音转写按分钟算，智能纪要按篇数算，Aily智能体按对话轮次算。每个产品团队选了最贴近自己成本结构的计量方式——单独看都合理，但叠在一起用户就懵了。这和WPS现在的状态几乎一致。
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-label">阶段二</div>
+        <div class="timeline-title">发现对客太碎，加了一层"AI通用额度"</div>
+        <div class="timeline-text">
+          飞书引入了统一的"点数"概念——AI企业版提供200万点/年通用额度，旗舰版2000万点/年；个人高级会员每月1000点，可用于智能纪要、知识问答、Aily和妙搭。关键在于：这一层是<strong>后加的抽象层</strong>，不是推倒重来。飞书没有重写各模块的扣减逻辑，而是在已有系统之上盖了一层统一的额度归一化。
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-label">阶段三</div>
+        <div class="timeline-title">现在的混合态——通用点数与专项额度并存</div>
+        <div class="timeline-text">
+          智能会议纪要和Aily仍然支持单独购买用量额度，妙记语音转写继续按分钟计量。飞书到今天也没有做到"一个池子管所有"，而是形成了<strong>"通用点数覆盖大部分轻量文本AI能力，重成本能力保留专项计量"</strong>的混合结构。管理员既能看到通用额度总量，也能对每个AI功能单独设限额——说明后端确实还是按功能维度在扣减。
+        </div>
+      </div>
+    </div>
+
+    <div class="compare-container">
+      <div class="compare-col positive">
+        <div class="compare-header positive">
+          <span class="compare-header-icon">✅</span>
+          <h3>飞书经验：什么是对的</h3>
+        </div>
+        <div class="compare-item">
+          <h4>不需要全部重构也能归一化</h4>
+          <p>先做用户端的感知统一（一个总点数），后端各模块扣减逻辑基本不变，只加一层聚合。不是重写计费逻辑，而是在上面"盖一层楼"。</p>
+        </div>
+        <div class="compare-item">
+          <h4>务实承认"不是所有能力都适合统一"</h4>
+          <p>时长型能力（语音转写）的成本结构和次数型能力（问答）根本不同，强行统一反而造成汇率扭曲。分类处理比强行统一更诚实。</p>
+        </div>
+        <div class="compare-item">
+          <h4>管理员侧保留精细控制</h4>
+          <p>管理员既能看到通用额度总量，也能对每个AI功能单独设限额——用户感知简化，管理灵活性不丢。</p>
+        </div>
+      </div>
+
+      <div class="compare-col negative">
+        <div class="compare-header negative">
+          <span class="compare-header-icon">⚠️</span>
+          <h3>飞书局限：什么没解决</h3>
+        </div>
+        <div class="compare-item">
+          <h4>认知负担降低了，但没消除</h4>
+          <p>用户从"5个维度各算各"变成了"通用点数+纪要篇数+转写分钟数"。从5降到3是进步，但仍需在多个维度间切换思考。</p>
+        </div>
+        <div class="compare-item">
+          <h4>汇率黑箱</h4>
+          <p>1000点约对应50次纪要或问答，每次约20点——但用户不知道为什么是20点。不透明在续约谈判时容易变成争议点。</p>
+        </div>
+        <div class="compare-item">
+          <h4>汇率的"定时炸弹"</h4>
+          <p>大模型推理成本快速下降，汇率不调则客户多付，调了则存量客户质疑"去年是不是被坑了"。两难。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ==================== SECTION 3 ==================== -->
+  <section class="section" id="solution">
+    <div class="section-header">
+      <div class="section-number">03</div>
+      <h2 class="section-title">解决建议：务实的转型路径</h2>
+    </div>
+
+    <p class="prose">
+      基于WPS的现状（存量客户已在使用、AI能力已封装进套餐）和飞书的经验教训，以下是一条<strong>渐进式、低风险的转型路径</strong>，核心原则是"前端先统一叙事，后端慢慢收敛"。
+    </p>
+
+    <!-- Step 1 -->
+    <div class="step-grid">
+      <div class="step-card">
+        <div class="step-card-header">
+          <div class="step-badge s1">1</div>
+          <div class="step-card-title">展示层归一化先行，不动后端</div>
+        </div>
+        <p>
+          在现有各能力独立计量不变的基础上，在管理后台和用户权益页加一个<strong>"AI使用总览"</strong>聚合视图。每个能力的使用量乘以一个预设系数，换算成统一的"AI点数"展示。后端还是各扣各的，前端让用户看到的是一个进度条。
+        </p>
+        <p style="margin-top: 0.8rem;">
+          这个改动量最小——本质上是一个前端聚合页加一张汇率配置表，不需要碰各产品线的核心逻辑。这一步解决的不是计量问题，而是<strong>用户感知问题和销售解释成本问题</strong>。
+        </p>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="step-card">
+        <div class="step-card-header">
+          <div class="step-badge s2">2</div>
+          <div class="step-card-title">消耗值走"分层粗粒度"，不追求精确</div>
+        </div>
+        <p>
+          把AI能力分成三档：<strong>轻量级</strong>（问答、总结、翻译，每次1点）、<strong>中量级</strong>（文档问答、智能搜索，每次5点）、<strong>重量级</strong>（AI PPT、长文档生成，每次20~50点）。时长型能力（会议纪要、语音转写）暂不塞进点数池，保留独立计量——飞书也是这么做的，说明这类能力的成本结构确实不适合用次数型点数来承载。
+        </p>
+        <p style="margin-top: 0.8rem;">
+          三档足够简洁，用户能凭直觉理解"生成PPT当然比问一个问题贵"，不需要精确解释为什么是5点而不是3点。精确汇率的维护成本，远大于粗略分档带来的"不公平"损失。
+        </p>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step-card">
+        <div class="step-card-header">
+          <div class="step-badge s3">3</div>
+          <div class="step-card-title">新SKU用点数体系，老SKU不硬切</div>
+        </div>
+        <p>
+          如果近期有新的AI套餐上线，直接用统一点数作为计量单位，不再走老的单点次数模式。老套餐的存量客户续约时给一个<strong>"升级到点数套餐"</strong>的选项加优惠引导，不强制迁移。两套并行一段时间，用利益引导自然过渡，避免客户反弹和合同变更的法务风险。
+        </p>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="step-card">
+        <div class="step-card-header">
+          <div class="step-badge s4">4</div>
+          <div class="step-card-title">推动产研改造，不必一上来就立"统一计量中心"大项目</div>
+        </div>
+        <p>
+          "统一计量中心"这个命题太大，产研会觉得是无底洞。核心原因在于：<strong>统一计量不是一个系统问题，而是一个跨产品线协同问题</strong>。直接立项会陷入多团队依赖，周期不可控，收益不可见。
+        </p>
+        <p style="margin-top: 0.8rem;">
+          换成小需求切入——"管理后台需要一个AI使用总览页面"、"新SKU需要一个计费网关"。每个需求有明确的产品价值和交付边界，可以独立交付、独立验收，而不是一个抽象的架构重构。把大象切成一口一口的肉。
+        </p>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- 附加价值 -->
+    <div class="subsection">
+      <h3 class="subsection-title cyan">算粒化带来的两个附加价值</h3>
+      <p class="prose">
+        除了解决用户认知和销售效率问题，统一算粒体系还会带来两个容易被忽视但对内部推动非常关键的附加价值：
+      </p>
+
+      <div class="value-grid">
+        <div class="value-card">
+          <h4><span class="dot" style="background: var(--accent-cyan);"></span>B端管理视角：按需分配</h4>
+          <p>
+            算粒化之后，企业管理员获得了一个核心抓手——<strong>"按需分配"</strong>。目前的"人均20次"是死的，但如果换成"企业总包10万点"，管理员可以把点数多分给高频使用的营销部门，少给行政部门。这能大幅提升企业客户购买"大包"的动力——因为大包比人均小包灵活得多。
+          </p>
+        </div>
+
+        <div class="value-card">
+          <h4><span class="dot" style="background: var(--accent-green);"></span>技术红利：模型切换解耦</h4>
+          <p>
+            统一计费网关之后，产研获得了<strong>"模型自由切换"的解耦权</strong>。未来底层模型从GPT换成DeepSeek或自研模型，成本变了，产研只需要在网关调整汇率，业务层代码一行不用动。这对产研来说是长期的"减负"，也是推动改造时可以给到产研的正向激励。
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- 远期 -->
+    <div class="subsection">
+      <h3 class="subsection-title purple">远期演进方向：模型版本分档</h3>
+      <p class="prose">
+        当统一计量体系跑通、有了实际数据之后，可以进一步引入"模型版本分档"——基础模型扣1点，高性能模型扣5点。这样在大模型持续降价的趋势下，不需要调整每一点的价值，而是通过"升级模型体验但不加价"来对冲——用户感知到的是"同样的价格，模型更好了"，而不是"同样的功能，汇率变了"。不过这属于第二阶段的优化，当前阶段的优先级是先把基础的算粒归一化做出来。
+      </p>
+    </div>
+
+    <div class="callout">
+      <strong>核心判断：</strong>完美的统一计量体系不存在——飞书做到今天也是混合态。关键不是追求"一步到位"，而是找到一条改动量最小、风险最低、但用户感知改善最大的渐进路径。先统一叙事，再统一系统。
+    </div>
+
+  </section>
+</main>
+
+<footer class="footer">
+  AI计量体系转型分析 · 内部参考文档 · 2026.03
+</footer>
+
+<!-- Scroll spy for nav -->
+<script>
+  const sections = document.querySelectorAll('.section[id]');
+  const navLinks = document.querySelectorAll('.nav-links a');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(link => link.classList.remove('active'));
+        const activeLink = document.querySelector(`.nav-links a[href="#${entry.target.id}"]`);
+        if (activeLink) activeLink.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-40% 0px -60% 0px' });
+
+  sections.forEach(section => observer.observe(section));
+</script>
+
+</body>
+</html>
