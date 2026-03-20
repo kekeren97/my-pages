@@ -1,0 +1,1532 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="keyword" content="AI成本不会归零，但成本重心正在从算力迁向算法调度与规模控制">
+  <title>AI成本演进：2026→2028</title>
+  <style>
+    :root {
+      --bg: #f6f7fb;
+      --card: rgba(255,255,255,0.92);
+      --text: #111827;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --accent: #111827;
+      --accent-2: #2563eb;
+      --good: #047857;
+      --warn: #b45309;
+      --bad: #b91c1c;
+      --shadow: 0 10px 30px rgba(17,24,39,0.08);
+      --shadow-hover: 0 20px 50px rgba(17,24,39,0.14);
+      --radius: 24px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                   "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background: radial-gradient(circle at top left, #ffffff 0, #f7f8fc 42%, #eef2ff 100%);
+      color: var(--text);
+      line-height: 1.6;
+      scroll-behavior: smooth;
+    }
+
+    /* ─── Scroll progress bar ─── */
+    #scroll-bar {
+      position: fixed;
+      top: 0; left: 0;
+      height: 3px;
+      width: 0%;
+      background: linear-gradient(90deg, #2563eb, #60a5fa);
+      z-index: 9999;
+      transition: width 0.1s linear;
+    }
+
+    .container {
+      width: min(1200px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 48px 0 100px;
+    }
+
+    /* ─── HERO ─── */
+    .hero {
+      padding: 48px;
+      border-radius: 32px;
+      background: linear-gradient(135deg, #ffffff 0%, #eef4ff 100%);
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(255,255,255,0.9);
+      position: relative;
+      overflow: hidden;
+      animation: fadeUp 0.7s ease both;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      left: -80px; bottom: -80px;
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, rgba(37,99,235,0.06) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -60px; top: -60px;
+      width: 240px; height: 240px;
+      background: radial-gradient(circle, rgba(37,99,235,0.12) 0%, rgba(37,99,235,0.02) 65%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: rgba(37,99,235,0.08);
+      color: var(--accent-2);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .04em;
+    }
+
+    h1 {
+      margin: 16px 0 10px;
+      font-size: clamp(32px, 4.2vw, 54px);
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+    }
+
+    .subtitle {
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.7;
+    }
+
+    .hero-grid {
+      margin-top: 28px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .stat {
+      padding: 20px;
+      background: rgba(255,255,255,0.86);
+      border: 1px solid rgba(17,24,39,0.06);
+      border-radius: 20px;
+      backdrop-filter: blur(6px);
+      cursor: pointer;
+      transition: all 0.28s cubic-bezier(.22,.61,.36,1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(37,99,235,0.04), transparent);
+      opacity: 0;
+      transition: opacity 0.28s;
+    }
+
+    .stat:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-hover);
+      border-color: rgba(37,99,235,0.18);
+    }
+
+    .stat:hover::after { opacity: 1; }
+
+    .stat .label {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    .stat .value {
+      font-size: 28px;
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+    }
+
+    .stat .desc {
+      margin-top: 8px;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    /* ─── SECTION ─── */
+    section {
+      margin-top: 32px;
+      animation: fadeUp 0.6s ease both;
+    }
+
+    section:nth-child(2) { animation-delay: 0.1s; }
+    section:nth-child(3) { animation-delay: 0.15s; }
+    section:nth-child(4) { animation-delay: 0.2s; }
+    section:nth-child(5) { animation-delay: 0.25s; }
+    section:nth-child(6) { animation-delay: 0.3s; }
+    section:nth-child(7) { animation-delay: 0.35s; }
+
+    .section-title {
+      font-size: 26px;
+      margin: 0 0 12px;
+      letter-spacing: -0.02em;
+      font-weight: 800;
+    }
+
+    .section-desc {
+      margin: 0 0 18px;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    /* ─── CARD ─── */
+    .card {
+      background: var(--card);
+      border: 1px solid rgba(17,24,39,0.07);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 26px;
+      transition: all 0.28s cubic-bezier(.22,.61,.36,1);
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    /* ─── GRIDS ─── */
+    .assumption-grid,
+    .insight-grid,
+    .cost-grid,
+    .final-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .assumption-grid { grid-template-columns: repeat(4, 1fr); }
+    .insight-grid    { grid-template-columns: repeat(3, 1fr); }
+    .cost-grid       { grid-template-columns: repeat(2, 1fr); }
+    .final-grid      { grid-template-columns: 1.15fr 0.85fr; }
+
+    /* ─── MINI COMPONENTS ─── */
+    .mini-title {
+      font-size: 17px;
+      font-weight: 800;
+      margin-bottom: 12px;
+      letter-spacing: -0.01em;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      background: #f3f4f6;
+      color: #374151;
+      letter-spacing: .02em;
+    }
+
+    ul.clean {
+      margin: 0;
+      padding-left: 18px;
+      color: #374151;
+    }
+
+    ul.clean li {
+      margin: 9px 0;
+      line-height: 1.55;
+    }
+
+    /* ─── COMPARE ─── */
+    .compare {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 14px;
+      align-items: stretch;
+      margin-top: 12px;
+    }
+
+    .compare-col {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      background: rgba(255,255,255,0.76);
+      transition: all 0.25s;
+    }
+
+    .compare-col:hover {
+      background: #fff;
+      box-shadow: 0 8px 24px rgba(17,24,39,0.08);
+    }
+
+    .year {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 8px;
+      font-weight: 700;
+      letter-spacing: .06em;
+    }
+
+    .big-number {
+      font-size: 30px;
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      margin-bottom: 4px;
+    }
+
+    .arrow {
+      align-self: center;
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--accent-2);
+      padding: 0 4px;
+    }
+
+    .delta {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px dashed var(--line);
+      font-size: 14px;
+      color: #374151;
+      line-height: 1.6;
+    }
+
+    .delta .up   { color: var(--bad);  font-weight: 800; }
+    .delta .down { color: var(--good); font-weight: 800; }
+    .delta .mix  { color: var(--warn); font-weight: 800; }
+
+    /* ─── PACKAGE COMPARE ─── */
+    .package-compare {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .package-card {
+      position: relative;
+      border: 1px solid rgba(17,24,39,0.08);
+      border-radius: 26px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.94) 100%);
+      box-shadow: var(--shadow);
+      padding: 24px;
+      overflow: hidden;
+      transition: all 0.28s cubic-bezier(.22,.61,.36,1);
+    }
+
+    .package-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .package-card.featured {
+      border-color: rgba(37,99,235,0.22);
+      box-shadow: 0 16px 40px rgba(37,99,235,0.12);
+      transform: translateY(-4px);
+    }
+
+    .package-card.featured:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 24px 60px rgba(37,99,235,0.18);
+    }
+
+    .package-card::after {
+      content: "";
+      position: absolute;
+      inset: 0 auto auto 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, #cbd5e1 0%, #94a3b8 100%);
+    }
+
+    .package-card.featured::after {
+      background: linear-gradient(90deg, #2563eb 0%, #60a5fa 100%);
+    }
+
+    .pkg-top {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .pkg-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      background: #f3f4f6;
+      color: #374151;
+      letter-spacing: .02em;
+    }
+
+    .featured .pkg-badge {
+      background: rgba(37,99,235,0.08);
+      color: var(--accent-2);
+    }
+
+    .pkg-name {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+    }
+
+    .pkg-price {
+      font-size: 34px;
+      line-height: 1.05;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      margin: 12px 0 6px;
+    }
+
+    .pkg-sub {
+      color: var(--muted);
+      font-size: 14px;
+      min-height: 40px;
+      line-height: 1.6;
+    }
+
+    .pkg-list {
+      list-style: none;
+      margin: 18px 0 0;
+      padding: 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .pkg-list li {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(229,231,235,0.7);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .pkg-list li span:first-child { color: var(--muted); }
+    .pkg-list li b { text-align: right; }
+
+    .pkg-judge {
+      margin-top: 16px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: #f8fafc;
+      border: 1px solid rgba(148,163,184,0.2);
+      font-size: 14px;
+      color: #334155;
+      line-height: 1.6;
+    }
+
+    /* ─── BAR GROUP ─── */
+    .bar-group { margin-top: 18px; }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 88px 1fr 64px;
+      gap: 12px;
+      align-items: center;
+      margin: 14px 0;
+      font-size: 14px;
+    }
+
+    .bar-track {
+      height: 12px;
+      border-radius: 999px;
+      background: #edf0f7;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #94a3b8, #2563eb);
+      transition: width 1.2s cubic-bezier(.22,.61,.36,1);
+      width: 0%;
+    }
+
+    .bar-fill.animated { width: var(--target-width); }
+
+    /* ─── STACKED BAR CHART ─── */
+    .stack-card { padding-bottom: 32px; }
+
+    .stack-wrap {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 32px;
+      align-items: end;
+      margin-top: 20px;
+    }
+
+    .stack-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .stack {
+      width: 100%;
+      max-width: 180px;
+      height: 320px;
+      border-radius: 22px;
+      overflow: hidden;
+      background: #eef2f7;
+      display: flex;
+      flex-direction: column-reverse;
+      box-shadow: inset 0 0 0 1px rgba(17,24,39,0.06);
+      cursor: pointer;
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+
+    .stack:hover {
+      transform: scale(1.04);
+      box-shadow: 0 12px 32px rgba(17,24,39,0.12), inset 0 0 0 1px rgba(17,24,39,0.06);
+    }
+
+    .seg {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: rgba(17,24,39,.82);
+      transition: flex 0.3s;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .seg:hover { filter: brightness(0.92); }
+
+    .s1 { background: #c7d2fe; }
+    .s2 { background: #93c5fd; }
+    .s3 { background: #fcd34d; }
+    .s4 { background: #86efac; }
+    .s5 { background: #fca5a5; }
+    .s6 { background: #d8b4fe; }
+
+    .legend {
+      margin-top: 22px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      font-size: 13px;
+      color: #374151;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .legend-item:hover { background: rgba(37,99,235,0.06); }
+
+    .dot {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ─── QUOTE BOX ─── */
+    .quote-box {
+      border-radius: 24px;
+      padding: 32px;
+      background: linear-gradient(135deg, #111827 0%, #1f2937 100%);
+      color: white;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .quote-box::before {
+      content: "「」";
+      position: absolute;
+      right: 28px; top: 20px;
+      font-size: 72px;
+      color: rgba(255,255,255,0.05);
+      font-weight: 900;
+      letter-spacing: -0.1em;
+    }
+
+    .quote-box .small {
+      font-size: 12px;
+      opacity: .6;
+      margin-bottom: 12px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .quote-box .quote {
+      font-size: clamp(22px, 2.8vw, 36px);
+      line-height: 1.3;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .final-list {
+      list-style: none;
+      padding: 0;
+      margin-top: 20px;
+    }
+
+    .final-list li {
+      color: rgba(255,255,255,0.82);
+      padding: 8px 0 8px 22px;
+      position: relative;
+      font-size: 15px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      line-height: 1.6;
+    }
+
+    .final-list li::before {
+      content: "→";
+      position: absolute;
+      left: 0;
+      color: #60a5fa;
+      font-weight: 700;
+    }
+
+    /* ─── COST TABLE ─── */
+    .cost-row-grid {
+      display: grid;
+      grid-template-columns: 250px 1fr 1fr 220px;
+      gap: 12px;
+      margin-bottom: 12px;
+      align-items: stretch;
+    }
+
+    .cost-cell {
+      padding: 18px 20px;
+      border-radius: 22px;
+      background: #fff;
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      transition: all 0.25s;
+    }
+
+    .cost-cell:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .cost-cell.year-2028 {
+      background: linear-gradient(180deg, #eef4ff 0%, #ffffff 100%);
+      border-color: rgba(37,99,235,.16);
+      box-shadow: 0 16px 40px rgba(37,99,235,0.08);
+    }
+
+    .cost-cell.warn-cell {
+      background: #fff7ed;
+      border-color: rgba(180,83,9,.18);
+    }
+
+    .cost-cell.danger-cell {
+      background: #fef2f2;
+      border-color: rgba(185,28,28,.14);
+    }
+
+    /* ─── SOCRATIC MODULE ─── */
+    .socratic-section {
+      margin-top: 36px;
+    }
+
+    .socratic-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .socratic-badge {
+      display: inline-flex;
+      padding: 5px 12px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+      color: #6d28d9;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .04em;
+    }
+
+    .socratic-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .socratic-card {
+      background: linear-gradient(135deg, #faf5ff 0%, #f5f3ff 100%);
+      border: 1px solid rgba(109,40,217,0.12);
+      border-radius: 20px;
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.28s cubic-bezier(.22,.61,.36,1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .socratic-card::before {
+      content: attr(data-num);
+      position: absolute;
+      right: 16px; top: 12px;
+      font-size: 40px;
+      font-weight: 900;
+      color: rgba(109,40,217,0.07);
+      letter-spacing: -0.04em;
+      line-height: 1;
+    }
+
+    .socratic-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 40px rgba(109,40,217,0.12);
+      border-color: rgba(109,40,217,0.25);
+      background: linear-gradient(135deg, #ede9fe 0%, #f5f3ff 100%);
+    }
+
+    .socratic-q {
+      font-size: 15px;
+      font-weight: 700;
+      color: #4c1d95;
+      line-height: 1.55;
+      margin-bottom: 10px;
+    }
+
+    .socratic-hint {
+      font-size: 13px;
+      color: #6d28d9;
+      opacity: 0.75;
+      line-height: 1.6;
+    }
+
+    .socratic-expand {
+      display: none;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(109,40,217,0.15);
+      font-size: 13px;
+      color: #4c1d95;
+      line-height: 1.7;
+    }
+
+    .socratic-card.open .socratic-expand {
+      display: block;
+      animation: fadeUp 0.3s ease both;
+    }
+
+    .socratic-card.open {
+      background: linear-gradient(135deg, #ede9fe 0%, #f5f3ff 100%);
+      border-color: rgba(109,40,217,0.3);
+    }
+
+    /* ─── TOOLTIP POPUP ─── */
+    .tooltip-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: rgba(17,24,39,0.4);
+      backdrop-filter: blur(4px);
+      align-items: center;
+      justify-content: center;
+    }
+
+    .tooltip-overlay.active { display: flex; }
+
+    .tooltip-box {
+      background: #fff;
+      border-radius: 28px;
+      padding: 36px;
+      max-width: 540px;
+      width: calc(100% - 48px);
+      box-shadow: 0 32px 80px rgba(17,24,39,0.2);
+      position: relative;
+      animation: zoomIn 0.3s cubic-bezier(.22,.61,.36,1) both;
+    }
+
+    .tooltip-close {
+      position: absolute;
+      right: 20px; top: 20px;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: #f3f4f6;
+      border: none;
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      transition: background 0.2s;
+    }
+
+    .tooltip-close:hover { background: #e5e7eb; }
+
+    .tooltip-title {
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+
+    .tooltip-body {
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.75;
+    }
+
+    /* ─── FOOTER ─── */
+    .footer-note {
+      margin-top: 24px;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: right;
+      line-height: 1.7;
+    }
+
+    .footer-timestamp {
+      margin-top: 48px;
+      padding: 24px;
+      background: rgba(255,255,255,0.7);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      color: var(--muted);
+      backdrop-filter: blur(6px);
+    }
+
+    .footer-timestamp .ts-main {
+      font-weight: 700;
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    .footer-timestamp .ts-meta {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+
+    /* ─── ANIMATIONS ─── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes zoomIn {
+      from { opacity: 0; transform: scale(0.92); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    /* ─── TIMELINE ─── */
+    .timeline {
+      display: flex;
+      gap: 0;
+      margin-top: 24px;
+      position: relative;
+    }
+
+    .timeline::before {
+      content: "";
+      position: absolute;
+      top: 28px;
+      left: 40px;
+      right: 40px;
+      height: 2px;
+      background: linear-gradient(90deg, #e5e7eb, #2563eb, #e5e7eb);
+      z-index: 0;
+    }
+
+    .timeline-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+      z-index: 1;
+      cursor: pointer;
+    }
+
+    .timeline-dot {
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      background: #fff;
+      border: 2px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      box-shadow: 0 4px 12px rgba(17,24,39,0.08);
+      transition: all 0.25s;
+    }
+
+    .timeline-item:hover .timeline-dot {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 6px rgba(37,99,235,0.1), 0 4px 12px rgba(17,24,39,0.08);
+      transform: scale(1.1);
+    }
+
+    .timeline-item.active .timeline-dot {
+      background: linear-gradient(135deg, #2563eb, #60a5fa);
+      border-color: #2563eb;
+      color: white;
+    }
+
+    .timeline-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .timeline-item.active .timeline-label { color: var(--accent-2); }
+
+    .timeline-desc {
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+      max-width: 100px;
+      line-height: 1.5;
+    }
+
+    /* ─── INSIGHT CARD HOVER ─── */
+    .insight-card {
+      cursor: pointer;
+    }
+
+    .insight-card .chip {
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .insight-card:hover .chip {
+      background: rgba(37,99,235,0.1);
+      color: var(--accent-2);
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 1080px) {
+      .hero-grid,
+      .assumption-grid,
+      .insight-grid,
+      .cost-grid,
+      .final-grid,
+      .legend,
+      .socratic-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .cost-row-grid {
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto;
+      }
+
+      .timeline { flex-wrap: wrap; }
+    }
+
+    @media (max-width: 720px) {
+      .container { width: min(100vw - 20px, 1200px); padding-top: 24px; }
+      .hero { padding: 28px 20px; }
+      .hero-grid,
+      .assumption-grid,
+      .insight-grid,
+      .cost-grid,
+      .final-grid,
+      .legend,
+      .stack-wrap,
+      .socratic-grid {
+        grid-template-columns: 1fr;
+      }
+      .package-compare { grid-template-columns: 1fr; }
+      .compare { grid-template-columns: 1fr; }
+      .arrow { transform: rotate(90deg); }
+      .stack { max-width: none; }
+      .cost-row-grid { grid-template-columns: 1fr; }
+      .timeline::before { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="scroll-bar"></div>
+
+<!-- Tooltip Overlay -->
+<div class="tooltip-overlay" id="tooltipOverlay">
+  <div class="tooltip-box">
+    <button class="tooltip-close" onclick="closeTooltip()">✕</button>
+    <div class="tooltip-title" id="tooltipTitle"></div>
+    <div class="tooltip-body" id="tooltipBody"></div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ═══ HERO ═══ -->
+  <div class="hero">
+    <div class="eyebrow">AI 成本演进信息图 · 2026 → 2028</div>
+    <h1>AI成本不会归零，<br>但成本重心正在迁移</h1>
+    <div class="subtitle">
+      未来两年，真正变化的不是"AI还有没有成本"，而是：<b>GPU硬件不再是唯一大头，调用规模、Agent链路、工程调度与合规治理会成为新的成本中心。</b>
+    </div>
+    <div class="hero-grid">
+      <div class="stat" onclick="showTooltip('单位推理成本', '得益于更高效的模型架构（如MoE、稀疏激活）、KV Cache优化、推理加速硬件以及云厂商之间的激烈竞争，单次AI推理调用成本预计在2026-2028年间下降5至10倍。但这并不意味着AI总支出会减少——调用量的爆炸式增长会抵消单价下降带来的红利。')">
+        <div class="label">单位推理成本</div>
+        <div class="value">↓ 5–10倍</div>
+        <div class="desc">模型效率、路由与推理优化持续压缩单次调用成本</div>
+      </div>
+      <div class="stat" onclick="showTooltip('调用总量', 'AI从"功能"进化为"流程"，意味着每一个工作任务都会触发AI调用。2026年用户平均每天主动调用约20次，到2028年随着Agent化和工作流自动化的普及，系统自动触发的调用次数可能高达200次/人/天，增长10倍。')">
+        <div class="label">调用总量</div>
+        <div class="value">↑ 20–30倍</div>
+        <div class="desc">从"偶尔问答"走向"全流程嵌入 + Agent化执行"</div>
+      </div>
+      <div class="stat" onclick="showTooltip('工程调度投入', '随着AI调用规模扩大，企业必须建设模型网关、语义缓存、分层路由、配额管理和成本控制系统。这些工程能力在2026年还只是少数大厂的优势，到2028年会成为所有AI产品公司的"必须项"，相关投入预计增加5至10倍。')">
+        <div class="label">工程调度投入</div>
+        <div class="value">↑ 5–10倍</div>
+        <div class="desc">模型网关、缓存、分层调度、成本控制成为核心能力</div>
+      </div>
+      <div class="stat" onclick="showTooltip('关键商业结论', '控制AI成本的方式将发生根本性转变：从"选哪家云、买多少GPU"转向"如何控制用户调用行为、如何设计合理的任务链长度、如何在大模型和小模型之间动态路由"。成本管理本质上成为产品设计和定价策略的核心竞争力。')">
+        <div class="label">关键商业结论</div>
+        <div class="value">成本迁移</div>
+        <div class="desc">从"买算力"转向"控规模、控任务链、控使用行为"</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ TIMELINE ═══ -->
+  <section>
+    <h2 class="section-title">演进时间轴</h2>
+    <p class="section-desc">两年间，AI的角色、成本结构与产品形态将经历根本性变化。</p>
+    <div class="card" style="padding:28px 28px 36px;">
+      <div class="timeline">
+        <div class="timeline-item active">
+          <div class="timeline-dot">🌱</div>
+          <div class="timeline-label">2026 Q1–Q2</div>
+          <div class="timeline-desc">问答辅助为主，GPU是最大成本</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot">📈</div>
+          <div class="timeline-label">2026 Q3–Q4</div>
+          <div class="timeline-desc">工作流嵌入开始，调用量快速增长</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot">🔧</div>
+          <div class="timeline-label">2027 上半年</div>
+          <div class="timeline-desc">工程调度团队扩张，路由/缓存成标配</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot">🤖</div>
+          <div class="timeline-label">2027 下半年</div>
+          <div class="timeline-desc">Agent化任务开始铺开，链路成本浮现</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot">🚀</div>
+          <div class="timeline-label">2028</div>
+          <div class="timeline-desc">Agent执行成新最大成本项，按任务定价</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ ASSUMPTIONS ═══ -->
+  <section>
+    <h2 class="section-title">统一测算假设</h2>
+    <p class="section-desc">以下数据为示意模型，用于观察成本结构变化，不代表单一厂商真实财务口径。</p>
+    <div class="assumption-grid">
+      <div class="card" onclick="showTooltip('用户规模假设', '以10万企业用户为基准模型。2026年AI渗透率约30%（3万活跃AI用户），到2028年随着AI深度嵌入工作流，渗透率提升至80%（8万活跃AI用户）。这一增长不仅是用户数增长，更重要的是每位用户的使用深度和频次都在大幅提升。')">
+        <div class="mini-title">👥 用户规模</div>
+        <ul class="clean">
+          <li>企业用户数：<b>10万</b></li>
+          <li>2026 AI渗透率：<b>30%</b></li>
+          <li>2028 AI渗透率：<b>80%</b></li>
+        </ul>
+      </div>
+      <div class="card" onclick="showTooltip('使用频率假设', '2026年每人每天主动发起约20次AI交互，主要是主动搜索、写作辅助等显性使用。到2028年，随着AI嵌入各类系统后台，系统自动触发的隐性调用占主导，每人每天约200次，是2026年的10倍。这意味着AI成本核算从"人头数"转向"调用量管理"。')">
+        <div class="mini-title">🔁 使用频率</div>
+        <ul class="clean">
+          <li>2026：<b>20次</b>/人/天</li>
+          <li>2028：<b>200次</b>/人/天</li>
+          <li>AI从"功能"变成"流程"</li>
+        </ul>
+      </div>
+      <div class="card" onclick="showTooltip('任务形态假设', '2026年以单轮/短对话为主（问答、写作辅助），一次用户操作≈1~3次API调用。到2028年，多步骤Agent执行普及，用户一次"发指令"背后，系统可能完成10~50步工具调用、文件读写、外部服务交互。单任务消耗的Token量和API调用次数呈数量级增长。')">
+        <div class="mini-title">🤖 任务形态</div>
+        <ul class="clean">
+          <li>2026：问答/写作辅助为主</li>
+          <li>2028：多步骤Agent执行</li>
+          <li>单任务调用链显著拉长</li>
+        </ul>
+      </div>
+      <div class="card" onclick="showTooltip('商业含义', '看似矛盾的两个趋势同时发生：单次更便宜（技术进步带来的效率提升），整体更常用（渗透率和频次的爆炸增长）。最终结果是总AI支出不降反升，但成本构成完全不同。这对产品定价、SKU设计和财务模型都提出了新挑战。')">
+        <div class="mini-title">📦 商业含义</div>
+        <ul class="clean">
+          <li>单次更便宜</li>
+          <li>整体更常用</li>
+          <li>控成本重点从"买卡"转向"控调用"</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ THREE KEY CHANGES ═══ -->
+  <section>
+    <h2 class="section-title">三个最关键的变化</h2>
+    <div class="insight-grid">
+      <div class="card insight-card" onclick="showTooltip('单次成本下降', '推动单次成本下降的核心因素：①模型架构优化——MoE（混合专家）让模型在推理时只激活部分参数，效率大幅提升；②KV Cache——对相似请求的中间计算结果进行缓存复用，减少重复计算；③小模型崛起——大量轻量级专用模型可以处理80%的常规任务，成本是大模型的1/10；④硬件迭代——新一代推理芯片能效比持续提升；⑤云厂商价格战——OpenAI、Claude、Gemini等之间的竞争持续压低API价格。')">
+        <div class="chip">变化 01</div>
+        <div class="mini-title">单次成本下降</div>
+        <ul class="clean">
+          <li>模型更高效，小模型更可用</li>
+          <li>推理优化、KV Cache、MoE降低边际成本</li>
+          <li>云厂商与开源竞争持续压价</li>
+        </ul>
+      </div>
+      <div class="card insight-card" onclick="showTooltip('总调用量暴涨', 'AI不再只是"对话框"，而是渗透到每一个业务流程节点：当用户在CRM系统中更新一条客户记录，AI自动生成跟进建议；当员工提交一份报告，AI自动做合规审查；当系统检测到异常，AI自动分析原因并草拟处置方案。这些"系统自动触发"的调用，用户几乎感知不到，但成本账单清晰可见。一个中型企业的AI调用量，可能在两年内从数百万次/月暴涨到数十亿次/月。')">
+        <div class="chip">变化 02</div>
+        <div class="mini-title">总调用量暴涨</div>
+        <ul class="clean">
+          <li>AI不再只回答问题，而是参与整个工作流</li>
+          <li>从"用户主动调用"转向"系统自动触发"</li>
+          <li>Agent使一次任务变成多步消耗</li>
+        </ul>
+      </div>
+      <div class="card insight-card" onclick="showTooltip('成本中心迁移', '2026年企业AI成本账单：GPU/云算力占大头（40-50%），推理API费用次之。2028年成本账单将被重写：①Agent执行成本——每个自动化任务链的API调用、工具使用费用汇聚成新的最大成本项；②工程调度团队——为管理规模化AI调用而建设的基础设施和团队；③存储/带宽——多模态内容、审计日志、上下文管理的存储需求；④合规/安全——AI内容审查、数据合规的运营成本。谁能建立高效的分层路由和配额管理，谁的毛利率就更有保障。')">
+        <div class="chip">变化 03</div>
+        <div class="mini-title">成本中心迁移</div>
+        <ul class="clean">
+          <li>硬件仍贵，但不再是唯一决定因素</li>
+          <li>工程调度、安全合规、数据流量成为新刚需</li>
+          <li>谁更会分层路由，谁更可能赚钱</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ COST DETAIL TABLE ═══ -->
+  <section>
+    <h2 class="section-title">分项成本对比</h2>
+    <p class="section-desc">六大成本项在2026→2028间的量级与趋势变化，点击任意行深入了解。</p>
+    <div class="card" style="padding: 20px; overflow-x:auto;">
+      <div style="min-width: 1080px;">
+
+        <!-- Header -->
+        <div class="cost-row-grid" style="margin-bottom:16px;">
+          <div style="padding:16px 18px; border-radius:18px; background:#f8fafc; border:1px solid var(--line); font-size:13px; color:var(--muted); font-weight:700;">成本项</div>
+          <div style="padding:16px 18px; border-radius:18px; background:linear-gradient(180deg,#ffffff,#f8fafc); border:1px solid var(--line); font-size:24px; font-weight:800; letter-spacing:-0.03em;">2026</div>
+          <div style="padding:16px 18px; border-radius:18px; background:linear-gradient(180deg,#eef4ff,#f8fbff); border:1px solid rgba(37,99,235,.16); font-size:24px; font-weight:800; letter-spacing:-0.03em; color:var(--accent-2);">2028</div>
+          <div style="padding:16px 18px; border-radius:18px; background:#f8fafc; border:1px solid var(--line); font-size:13px; color:var(--muted); font-weight:700;">适用判断</div>
+        </div>
+
+        <!-- Row 1: GPU -->
+        <div class="cost-row-grid" onclick="showTooltip('GPU / 算力成本', 'GPU算力是AI基础设施的"地基"，2026年NVIDIA H100约$2.5/GPU小时，仍是最大底座型成本。到2028年，随着H200/B200等更高效芯片推出，以及AMD、国内厂商（昇腾、摩尔线程）加入竞争，单价预计下降至$1.2-1.8/GPU小时。但由于推理需求持续增长，GPU总体采购量不会大幅减少，总成本从约$200万/月降至约$150万/月，下降幅度不如预期明显。关键洞察：GPU成本下降是"基础性下降"，而不是"结构性重组"。')">
+          <div class="cost-cell">
+            <div class="pkg-badge">下降型成本</div>
+            <div class="mini-title" style="margin:10px 0 0;">GPU / 算力成本</div>
+          </div>
+          <div class="cost-cell">
+            <div style="font-size:30px; font-weight:800; letter-spacing:-0.04em;">~$200万 / 月</div>
+            <div class="pkg-sub">H100约 $2.5 / GPU小时，仍是最大底座型成本之一。</div>
+          </div>
+          <div class="cost-cell year-2028">
+            <div style="font-size:30px; font-weight:800; letter-spacing:-0.04em; color:var(--accent-2);">~$150万 / 月</div>
+            <div class="pkg-sub">$1.2–1.8 / GPU小时，单价下探，但总盘子仍大。</div>
+          </div>
+          <div class="cost-cell" style="font-size:14px; color:#334155;">
+            <b class="down">↓ 下降</b><br>基础底座更便宜，但仍不能忽视。
+          </div>
+        </div>
+
+        <!-- Row 2: Token -->
+        <div class="cost-row-grid" onclick="showTooltip('Token / 推理成本（最值得警惕）', '这是2028年最容易"悄悄失控"的成本项。表面上看，单次推理成本从约$0.01/次降至约$0.001/次，下降了10倍——但同期调用量从60万次/天暴涨至1600万次/天，增长近27倍。最终结果：月度Token成本从$18万增至$48万，翻了近3倍。这就是"Jevons悖论"在AI领域的真实演绎：效率越高，使用越多，总消耗不降反升。任何声称"模型便宜了，AI成本就能降"的逻辑，都在忽略调用量这个关键变量。')">
+          <div class="cost-cell" style="border-color:rgba(37,99,235,.16); box-shadow:0 16px 40px rgba(37,99,235,0.08);">
+            <div class="pkg-badge" style="background:rgba(37,99,235,.08); color:var(--accent-2);">⚠️ 最值得警惕</div>
+            <div class="mini-title" style="margin:10px 0 0;">Token / 推理成本</div>
+          </div>
+          <div class="cost-cell">
+            <div style="font-size:30px; font-weight:800; letter-spacing:-0.04em;">~$18万 / 月</div>
+            <div class="pkg-sub">60万次/天，约$0.01/次；单价较高但频率有限。</div>
+          </div>
+          <div class="cost-cell year-2028">
+            <div style="font-size:30px; font-weight:800; letter-spacing:-0.04em; color:var(--accent-2);">~$48万 / 月</div>
+            <div class="pkg-sub">1600万次/天，约$0.001/次；单次更便宜，但总账变大。</div>
+          </div>
+          <div class="cost-cell warn-cell" style="color:#7c2d12; font-size:14px;">
+            <b class="up">↑ 上升</b><br>不是贵在单价，而是贵在被高频调用。
+          </div>
+        </div>
+
+        <!-- Row 3: Training -->
+        <div class="cost-row-grid" onclick="showTooltip('模型训练成本', '2026年仍有不少企业在探索"自训"或"重度微调"路线，训练一个可用的领域模型需要$500万到上亿美元不等。到2028年，这一格局将明显分化：①超大模型基础层（OpenAI、Google、Anthropic）训练成本继续高涨，一次预训练可能耗资数亿甚至十亿美元；②应用层企业则大规模转向LoRA微调、RAG检索增强、Prompt工程等轻量化路线，几乎不需要大规模训练投入。这意味着"训练成本"从大多数应用层企业的P&L中"消失"了，转嫁给了基础模型厂商。')">
+          <div class="cost-cell">
+            <div class="pkg-badge">外部化趋势</div>
+            <div class="mini-title" style="margin:10px 0 0;">模型训练成本</div>
+          </div>
+          <div class="cost-cell">
+            <div style="font-size:30px; font-weight:800; letter-spacing:-0.04em;">$500万–$1亿</div>
+            <div class="pkg-sub">仍有自训/重微调探索，对多数团队负担较重。</div>
+          </div>
+          <div class="cost-cell year-2028">
+            <div style="font-size:22px; font-weight:800; letter-spacing:-0.03em; color:var(--accent-2);">头部更贵，应用层更轻</div>
+            <div class="pkg-sub">更多转向 API / 开源底座，训练成本从应用层迁出。</div>
+          </div>
+          <div class="cost-cell" style="font-size:14px; color:#334155;">
+            <b class="mix">± 分化</b><br>头部继续涨，应用层反而更轻。
+          </div>
+        </div>
+
+        <!-- Row 4: Storage -->
+        <div class="cost-row-grid" onclick="showTooltip('存储 / 带宽成本（被低估的涨价项）', '2026年AI主要处理文本，用户人均数据量不大，存储成本约$2万/月。到2028年，多模态AI普及：语音交互、图像分析、视频理解成为标配，审计日志需要记录每一次AI调用的完整输入输出（合规要求），Agent执行链路产生大量中间状态数据，上下文管理需要存储长达数月的对话历史。人均数据量从约50MB/月增至约2GB/月，存储+带宽成本跳升至$10万+/月。这个成本项往往被忽视，但一旦规模化，会像"隐形加购包"一样侵蚀利润率。')">
+          <div class="cost-cell">
+            <div class="pkg-badge">被低估的涨价项</div>
+            <div class="mini-title" style="margin:10px 0 0;">存储 / 带宽成本</div>
+          </div>
+          <div class="cost-cell">
+            <div style="font-size:30px; font-weight:800; letter-spacing:-0.04em;">~$2万 / 月</div>
+            <div class="pkg-sub">文本为主，人均约50MB/月，成本感知不强。</div>
+          </div>
+          <div class="cost-cell year-2028">
+            <div style="font-size:30px; font-weight:800; letter-spacing:-0.04em; color:var(--accent-2);">~$10万+ / 月</div>
+            <div class="pkg-sub">多模态、日志、审计链路抬升至人均约2GB/月。</div>
+          </div>
+          <div class="cost-cell warn-cell" style="color:#7c2d12; font-size:14px;">
+            <b class="up">↑ 上升</b><br>很像隐形加购包，规模一大就吞利润。
+          </div>
+        </div>
+
+        <!-- Row 5: Engineering -->
+        <div class="cost-row-grid" onclick="showTooltip('工程 / 调度成本（新核心能力）', '这是2028年与2026年最大的"能力建设差异"。2026年一个AI产品可能只需10人工程团队，负责基本的API接入和产品功能开发。到2028年，规模化AI产品必须建设：①模型网关——统一管理所有模型调用，支持动态路由；②语义缓存——对相似请求返回缓存结果，降低重复调用成本；③配额管理系统——对不同用户、部门、场景设置合理用量上限；④成本归因——精准追踪每一笔AI成本来自哪个功能、哪个用户、哪个部门；⑤降级策略——在成本压力下自动切换到更便宜的小模型处理低复杂度任务。这套"AI中台"建设需要30-50人团队，月均运营成本$30-80万，但能带来2-3倍的成本效率提升。')">
+          <div class="cost-cell">
+            <div class="pkg-badge">新核心能力</div>
+            <div class="mini-title" style="margin:10px 0 0;">工程 / 调度成本</div>
+          </div>
+          <div class="cost-cell">
+            <div style="font-size:30px; font-weight:800; letter-spacing:-0.04em;">~$5万 / 月</div>
+            <div class="pkg-sub">约10人团队，平台能力仍在建设初期。</div>
+          </div>
+          <div class="cost-cell year-2028">
+            <div style="font-size:30px; font-weight:800; letter-spacing:-0.04em; color:var(--accent-2);">~$30–80万 / 月</div>
+            <div class="pkg-sub">30–50人团队，路由、缓存、网关、配额系统成为标配。</div>
+          </div>
+          <div class="cost-cell warn-cell" style="color:#7c2d12; font-size:14px;">
+            <b class="up">↑ 上升</b><br>不直接对客，但决定最终利润率。
+          </div>
+        </div>
+
+        <!-- Row 6: Agent -->
+        <div class="cost-row-grid" onclick="showTooltip('Agent 执行成本（未来新增最大项）', 'Agent化是2026-2028年最重要的AI范式转变。2026年用户主要使用"单轮问答"模式，一次对话≈1次API调用。到2028年，一个Agent任务可能包含：①多步规划（5-10次LLM调用）②工具使用（搜索、代码执行、文件读写，各消耗API）③自我检查和修正（2-5次额外调用）④结果验证（1-3次调用）。一个中等复杂的Agent任务，可能消耗20-50次API调用，是普通对话的20-50倍。当每天500万个此类任务运行时，Agent执行成本将超越所有其他成本项之和，成为整个AI成本结构中最大的单一变量，预计高达$150万+/月。')">
+          <div class="cost-cell" style="border-color:rgba(37,99,235,.16); box-shadow:0 16px 40px rgba(37,99,235,0.08);">
+            <div class="pkg-badge" style="background:rgba(37,99,235,.08); color:var(--accent-2);">🚀 未来新增最大项</div>
+            <div class="mini-title" style="margin:10px 0 0;">Agent 执行成本</div>
+          </div>
+          <div class="cost-cell">
+            <div style="font-size:30px; font-weight:800; letter-spacing:-0.04em;">接近 0</div>
+            <div class="pkg-sub">多数场景仍是单轮问答，任务链执行还没有真正铺开。</div>
+          </div>
+          <div class="cost-cell year-2028">
+            <div style="font-size:30px; font-weight:800; letter-spacing:-0.04em; color:var(--accent-2);">~$150万+ / 月</div>
+            <div class="pkg-sub">500万任务/天 × 10步链路，从问答成本变成整条执行链成本。</div>
+          </div>
+          <div class="cost-cell danger-cell" style="color:#7f1d1d; font-size:14px;">
+            <b class="up">💥 爆发</b><br>一旦跑起来，会重写整个成本结构。
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ STACKED CHART ═══ -->
+  <section>
+    <div class="card stack-card">
+      <h2 class="section-title" style="margin-top:0;">成本结构占比变化</h2>
+      <p class="section-desc">同样是AI总成本，2026与2028的内部构成已经完全不是一回事。悬停色块查看详情。</p>
+      <div class="stack-wrap">
+        <div class="stack-col">
+          <div class="stack" onclick="showTooltip('2026 成本结构', '2026年的AI成本账单以"基础设施"为主：GPU算力占40%是绝对大头，反映了当前以自建/托管GPU为主的部署模式；推理API费用（Token消耗）占30%，随着大模型调用增多快速增长；模型训练还占15%，是许多企业仍在探索定制化模型的体现；工程投入只有10%，表明当时AI工程化能力建设还比较薄弱；存储带宽只有5%，多模态还没大规模铺开。')">
+            <div class="seg s1" style="height:40%">GPU 40%</div>
+            <div class="seg s2" style="height:30%">推理 30%</div>
+            <div class="seg s3" style="height:15%">训练 15%</div>
+            <div class="seg s4" style="height:10%">工程 10%</div>
+            <div class="seg s5" style="height:5%">带宽 5%</div>
+          </div>
+          <div class="mini-title" style="margin:0; font-size:20px;">2026</div>
+          <div style="font-size:13px; color:var(--muted);">以算力基础设施为主</div>
+        </div>
+        <div class="stack-col">
+          <div class="stack" onclick="showTooltip('2028 成本结构', '2028年的AI成本账单已经被完全重写：Agent执行成本从零跃升至30%，成为最大单项成本，标志着AI从"工具"正式进化为"执行主体"；GPU占比从40%降至20%，但绝对金额并未减少，只是被其他成本项"稀释"；推理成本维持在25%，因为调用量爆发抵消了单价下降；工程/调度从10%升至15%，AI中台建设成为标配能力；存储带宽从5%升至10%，多模态和审计合规需求驱动。')">
+            <div class="seg s1" style="height:20%">GPU 20%</div>
+            <div class="seg s2" style="height:25%">推理 25%</div>
+            <div class="seg s6" style="height:30%">Agent 30%</div>
+            <div class="seg s4" style="height:15%">工程 15%</div>
+            <div class="seg s5" style="height:10%">带宽 10%</div>
+          </div>
+          <div class="mini-title" style="margin:0; font-size:20px;">2028</div>
+          <div style="font-size:13px; color:var(--muted);">Agent执行成为新最大项</div>
+        </div>
+      </div>
+      <div class="legend">
+        <div class="legend-item" onclick="showTooltip('GPU / 算力', 'GPU是AI推理的算力底座，也是企业AI基础设施的最大固定成本。2026年占比40%，2028年降至20%，但绝对金额变化不大（$200万→$150万/月）。GPU成本的相对下降，主要是因为其他成本项增速更快，而非GPU本身大幅降价。')">
+          <span class="dot s1"></span> GPU / 算力
+        </div>
+        <div class="legend-item" onclick="showTooltip('Token / 推理', '每次API调用消耗的Token费用，是最直接的AI使用成本。单价会持续下降，但调用量暴涨会让总成本上升。需要通过缓存、路由和配额管理来控制。')">
+          <span class="dot s2"></span> Token / 推理
+        </div>
+        <div class="legend-item" onclick="showTooltip('模型训练', '自主训练或深度微调大模型的成本。2028年这块成本主要发生在基础模型厂商身上，大多数应用层企业已转向轻量化微调（LoRA）或直接使用API，该项成本从P&L中消失。')">
+          <span class="dot s3"></span> 模型训练
+        </div>
+        <div class="legend-item" onclick="showTooltip('工程 / 调度', '建设和运营AI中台的成本，包括模型网关、分层路由、缓存系统、配额管理、成本归因等。2028年这是保障AI产品利润率的核心能力，也是很多企业的短板。')">
+          <span class="dot s4"></span> 工程 / 调度
+        </div>
+        <div class="legend-item" onclick="showTooltip('存储 / 带宽', '多模态内容存储、对话历史、审计日志、合规数据的存储和传输成本。随着AI深度嵌入业务，合规审计要求对每次AI调用留存完整记录，这部分成本会显著增长。')">
+          <span class="dot s5"></span> 存储 / 带宽
+        </div>
+        <div class="legend-item" onclick="showTooltip('Agent 执行', '2028年最大的新增成本项。每个Agent任务包含多步LLM调用、工具使用、自我检查和结果验证，单任务消耗的API调用量是普通对话的20-50倍。当Agent任务量规模化后，这一项会主导整个AI成本结构。')">
+          <span class="dot s6"></span> Agent 执行
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ FINAL ═══ -->
+  <section>
+    <div class="final-grid">
+      <div class="quote-box">
+        <div class="small">FINAL CONCLUSION</div>
+        <div class="quote">未来两年，AI的核心矛盾不是<br>"单次调用贵不贵"，而是<br>"用户每天会不会调用太多次"。</div>
+        <ul class="final-list">
+          <li>硬件成本会下降，但不会归零。</li>
+          <li>真正被放大的，是使用规模与任务链长度。</li>
+          <li>算粒、点数池、配额、分层路由，本质都是成本控制系统。</li>
+          <li>Jevons 悖论正在 AI 领域上演：效率越高，用得越多。</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="mini-title">对产品 / SKU 的直接启发</div>
+        <div class="bar-group">
+          <div class="bar-row">
+            <div>包年套餐</div>
+            <div class="bar-track"><div class="bar-fill" style="--target-width:58%;"></div></div>
+            <div style="color:var(--muted);">受挑战</div>
+          </div>
+          <div class="bar-row">
+            <div>点数池</div>
+            <div class="bar-track"><div class="bar-fill" style="--target-width:88%;"></div></div>
+            <div style="color:var(--good);">更适合</div>
+          </div>
+          <div class="bar-row">
+            <div>模型路由</div>
+            <div class="bar-track"><div class="bar-fill" style="--target-width:92%;"></div></div>
+            <div style="color:var(--good);">关键能力</div>
+          </div>
+          <div class="bar-row">
+            <div>配额管理</div>
+            <div class="bar-track"><div class="bar-fill" style="--target-width:90%;"></div></div>
+            <div style="color:var(--accent-2);">必须建设</div>
+          </div>
+          <div class="bar-row">
+            <div>Agent计费</div>
+            <div class="bar-track"><div class="bar-fill" style="--target-width:95%;"></div></div>
+            <div style="color:var(--accent-2);">新重点</div>
+          </div>
+        </div>
+        <div class="delta" style="margin-top:18px;">
+          更适合未来的商业模式，不是简单按"功能是否包含AI"来卖，而是要按 <b>额度、任务量、自动化深度、部门调配能力</b> 来设计产品与价格。
+        </div>
+      </div>
+    </div>
+    <div class="footer-note">示意数据仅用于趋势表达与SKU策略讨论，可继续按你的业务口径替换为真实模型参数。</div>
+  </section>
+
+  <!-- ═══ SOCRATIC MODULE ═══ -->
+  <section class="socratic-section">
+    <div class="socratic-title">
+      <h2 class="section-title" style="margin:0;">🔍 苏格拉底追问</h2>
+      <span class="socratic-badge">CRITICAL THINKING · 批判性思考</span>
+    </div>
+    <p class="section-desc">以下问题旨在挑战上述结论，引发更深层的思考。点击展开深度分析。</p>
+
+    <div class="socratic-grid">
+
+      <div class="socratic-card" data-num="01" onclick="toggleSocratic(this)">
+        <div class="socratic-q">如果单次成本下降99%，用量真的会增长100倍以上吗？这个假设成立的前提是什么？</div>
+        <div class="socratic-hint">↕ 点击展开思考角度</div>
+        <div class="socratic-expand">
+          <b>反驳方向：</b>并非所有工作都能被AI化，存在"结构性天花板"。企业的决策流程、合规审批、创意判断仍需人类参与，不可能完全被Agent替代。真正的增长上限可能是"10倍"而不是"100倍"。<br><br>
+          <b>支持方向：</b>历史上每次信息技术成本下降都带来超预期的需求释放（互联网带宽、云存储），AI可能重复这一规律。隐性需求（目前因成本高而被压制的AI应用）一旦释放，增长倍数可能超过预期。
+        </div>
+      </div>
+
+      <div class="socratic-card" data-num="02" onclick="toggleSocratic(this)">
+        <div class="socratic-q">Agent执行成本如果真的成为最大成本项，企业会选择"降AI使用量"还是"涨价转嫁给客户"？</div>
+        <div class="socratic-hint">↕ 点击展开思考角度</div>
+        <div class="socratic-expand">
+          <b>降量路径：</b>通过产品设计限制高耗成本操作，引导用户使用"轻量版"功能，本质是成本压力倒逼产品降级。风险是竞争对手提供更完整的AI能力，导致用户流失。<br><br>
+          <b>转嫁路径：</b>将Agent使用量纳入定价体系（按任务数收费），让重度用户为实际消耗付费。前提是产品价值足够高，用户愿意接受这种透明定价。这也是"按用量计费"模型兴起的核心逻辑。
+        </div>
+      </div>
+
+      <div class="socratic-card" data-num="03" onclick="toggleSocratic(this)">
+        <div class="socratic-q">GPU成本下降 + 调用量暴涨，两者同时成立，AI产品的毛利率会上升还是下降？</div>
+        <div class="socratic-hint">↕ 点击展开思考角度</div>
+        <div class="socratic-expand">
+          <b>毛利改善场景：</b>如果企业能通过"分层路由"（简单任务用小模型，复杂任务用大模型）+语义缓存控制边际成本，同时通过"使用量定价"转嫁超额消耗，毛利率有望维持甚至改善。<br><br>
+          <b>毛利压缩场景：</b>如果产品以"固定价格"承诺无限AI使用，而后台Agent成本爆发，则会出现"越用越亏"的死亡螺旋。这正是很多SaaS公司"加AI包"定价策略的致命陷阱。
+        </div>
+      </div>
+
+      <div class="socratic-card" data-num="04" onclick="toggleSocratic(this)">
+        <div class="socratic-q">工程调度成本上升5-10倍，这是"必要投入"还是"管理效率失败"的体现？</div>
+        <div class="socratic-hint">↕ 点击展开思考角度</div>
+        <div class="socratic-expand">
+          <b>必要投入视角：</b>就像早期互联网企业必须建设CDN、负载均衡，AI时代的模型网关和路由系统是"新基础设施"，投入此处的企业将获得持久的成本优势。<br><br>
+          <b>管理失效视角：</b>如果一个企业需要30-50人来管理AI调用成本，说明其AI产品架构设计本身存在问题。真正优秀的AI产品设计，应该在产品层就内置成本控制逻辑，而不是依靠后端工程团队来"亡羊补牢"。
+        </div>
+      </div>
+
+      <div class="socratic-card" data-num="05" onclick="toggleSocratic(this)">
+        <div class="socratic-q">开源模型持续变强，到2028年企业还有必要使用高价商业API吗？这会如何改变成本结构？</div>
+        <div class="socratic-hint">↕ 点击展开思考角度</div>
+        <div class="socratic-expand">
+          <b>开源替代场景：</b>Llama、Mistral等开源模型能力快速追赶，本地化部署+少量微调可以覆盖大量企业场景，边际成本接近零。对于数据敏感行业（金融、医疗），开源自部署还能规避数据合规风险。<br><br>
+          <b>商业API坚守场景：</b>顶级任务（复杂推理、多模态、高可靠性要求）仍需要最先进的商业模型；开源模型的维护成本（GPU采购、运维、安全更新）往往被低估；商业API的"无需维护"属性对中小企业更有价值。<br><br>
+          <b>混合路由将成主流：</b>日常任务走开源小模型，关键任务走商业API，这种"双轨制"架构将成为2028年主流选择。
+        </div>
+      </div>
+
+      <div class="socratic-card" data-num="06" onclick="toggleSocratic(this)">
+        <div class="socratic-q">"算粒/点数池"真的能解决AI成本控制问题，还是只是把复杂性从供应商转移到了用户？</div>
+        <div class="socratic-hint">↕ 点击展开思考角度</div>
+        <div class="socratic-expand">
+          <b>点数池的优势：</b>将AI消耗货币化，让用户直观感知成本，形成自然的使用约束；支持跨部门调配，提高资源利用率；为供应商提供可预测的现金流。<br><br>
+          <b>点数池的隐患：</b>不同AI任务的"点数消耗"难以统一定价（一次对话 vs. 一次Agent执行的价值差异巨大）；用量焦虑可能导致用户减少高价值AI使用，反而降低产品粘性；当Agent任务自动消耗大量点数而用户无感知时，会产生强烈的"被割韭菜"感。<br><br>
+          <b>更好的路径或许是：</b>按"任务完成量"而非"Token/点数消耗量"来定价，让用户为结果付费，而非为过程资源消耗付费。
+        </div>
+      </div>
+
+      <div class="socratic-card" data-num="07" onclick="toggleSocratic(this)">
+        <div class="socratic-q">如果所有竞争对手的AI成本结构都在相似的轨道上演化，成本管理能力能成为持久竞争优势吗？</div>
+        <div class="socratic-hint">↕ 点击展开思考角度</div>
+        <div class="socratic-expand">
+          <b>成本趋同风险：</b>当所有企业都使用相同的底层API，采购相同的云服务，建设相似的中台系统，成本结构会逐步趋同。此时成本优势将消失，竞争回归到产品体验、数据护城河和品牌。<br><br>
+          <b>成本差异化机会：</b>真正的成本优势来自"用更少的AI完成更好的结果"——即AI效率，而非AI数量。能通过产品设计减少冗余调用、提高任务一次成功率的企业，才能在成本上实现持久领先。
+        </div>
+      </div>
+
+      <div class="socratic-card" data-num="08" onclick="toggleSocratic(this)">
+        <div class="socratic-q">存储/带宽成本被"低估"，但合规对AI审计日志的要求到底会有多严格？监管风险是否被高估了？</div>
+        <div class="socratic-hint">↕ 点击展开思考角度</div>
+        <div class="socratic-expand">
+          <b>监管趋严信号：</b>EU AI Act已要求高风险AI系统保存详细的决策日志；金融和医疗监管机构正在探索AI使用的审计要求；数据安全事件后的溯源调查需要完整的AI交互记录。<br><br>
+          <b>监管不确定性：</b>全球监管框架仍不统一，许多规定的执行力度尚不明朗；企业可能选择"最小合规"策略，只保留法律明确要求的日志；技术上可以通过差分隐私等方式在保护隐私的同时满足审计需求，降低存储成本。
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══ FOOTER TIMESTAMP ═══ -->
+  <div class="footer-timestamp">
+    <div>
+      <div class="ts-main" id="ts-main">生成时间：加载中...</div>
+      <div style="margin-top:4px; font-size:12px;">AI成本演进信息图 · 数据源：示意模型，仅用于趋势分析</div>
+    </div>
+    <div class="ts-meta">
+      <div>v3.0-enhanced</div>
+      <div style="width:1px; height:16px; background:var(--line);"></div>
+      <div>© 2026 AI Cost Analysis</div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+  // ─── Scroll progress ───
+  window.addEventListener('scroll', () => {
+    const scrolled = window.scrollY;
+    const total = document.documentElement.scrollHeight - window.innerHeight;
+    document.getElementById('scroll-bar').style.width = (scrolled / total * 100) + '%';
+  });
+
+  // ─── Timestamp ───
+  (function() {
+    const now = new Date();
+    const pad = n => String(n).padStart(2,'0');
+    const str = `生成时间：${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())} (北京时间)`;
+    document.getElementById('ts-main').textContent = str;
+  })();
+
+  // ─── Tooltip ───
+  function showTooltip(title, body) {
+    document.getElementById('tooltipTitle').textContent = title;
+    document.getElementById('tooltipBody').textContent = body;
+    document.getElementById('tooltipOverlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeTooltip() {
+    document.getElementById('tooltipOverlay').classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  document.getElementById('tooltipOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closeTooltip();
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeTooltip();
+  });
+
+  // ─── Socratic toggle ───
+  function toggleSocratic(el) {
+    el.classList.toggle('open');
+  }
+
+  // ─── Bar animation on scroll ───
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.querySelectorAll('.bar-fill').forEach(bar => {
+          bar.classList.add('animated');
+        });
+      }
+    });
+  }, { threshold: 0.3 });
+
+  document.querySelectorAll('.bar-group').forEach(el => observer.observe(el));
+
+  // ─── Timeline dots interaction ───
+  document.querySelectorAll('.timeline-item').forEach((item, i) => {
+    item.addEventListener('click', function() {
+      document.querySelectorAll('.timeline-item').forEach(el => el.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>
