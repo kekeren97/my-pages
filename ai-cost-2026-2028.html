@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="keyword" content="AI成本不会归零，但成本的主角正在从GPU换成调用量与Agent执行链路">
+  <title>AI成本会归零吗？2026→2028 成本演进全景</title>
+  <style>
+    :root {
+      --bg: #f7f8fc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --blue: #2563eb;
+      --blue-lt: #eff6ff;
+      --blue-md: #bfdbfe;
+      --green: #059669;
+      --green-lt: #ecfdf5;
+      --red: #dc2626;
+      --red-lt: #fef2f2;
+      --amber: #d97706;
+      --amber-lt: #fffbeb;
+      --purple: #7c3aed;
+      --purple-lt: #f5f3ff;
+      --shadow-sm: 0 1px 3px rgba(15,23,42,.07), 0 1px 2px rgba(15,23,42,.04);
+      --shadow: 0 4px 16px rgba(15,23,42,.08), 0 1px 4px rgba(15,23,42,.04);
+      --shadow-lg: 0 12px 40px rgba(15,23,42,.10), 0 4px 12px rgba(15,23,42,.06);
+      --radius: 20px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+      background:var(--bg);color:var(--text);line-height:1.6;
+    }
+
+    /* ── progress bar ── */
+    #pb{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,#2563eb,#7c3aed);z-index:999;transition:width .1s;}
+
+    /* ── nav ── */
+    nav{
+      position:sticky;top:0;z-index:100;
+      background:rgba(247,248,252,.9);backdrop-filter:blur(12px);
+      border-bottom:1px solid var(--border);
+      padding:0 24px;
+      display:flex;align-items:center;gap:28px;height:52px;
+      overflow-x:auto;white-space:nowrap;
+    }
+    nav a{font-size:13px;font-weight:600;color:var(--muted);text-decoration:none;letter-spacing:.02em;transition:color .2s;}
+    nav a:hover{color:var(--blue);}
+    .nav-brand{font-size:14px;font-weight:800;color:var(--text);margin-right:8px;flex-shrink:0;}
+
+    /* ── layout ── */
+    .wrap{width:min(1160px,calc(100vw - 32px));margin:0 auto;padding:48px 0 96px;}
+
+    /* ── section spacing ── */
+    .section{margin-top:56px;}
+
+    /* ── typography ── */
+    .eyebrow{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;}
+    .eyebrow-blue{background:var(--blue-lt);color:var(--blue);}
+    .eyebrow-green{background:var(--green-lt);color:var(--green);}
+    .eyebrow-amber{background:var(--amber-lt);color:var(--amber);}
+    .eyebrow-purple{background:var(--purple-lt);color:var(--purple);}
+    .eyebrow-red{background:var(--red-lt);color:var(--red);}
+
+    h1{font-size:clamp(36px,4.5vw,62px);line-height:1.05;letter-spacing:-.035em;font-weight:900;}
+    h2{font-size:clamp(22px,2.5vw,32px);line-height:1.15;letter-spacing:-.025em;font-weight:800;margin-bottom:8px;}
+    h3{font-size:18px;font-weight:800;letter-spacing:-.01em;margin-bottom:8px;}
+    .lead{font-size:17px;color:var(--muted);line-height:1.75;max-width:800px;}
+
+    /* ── card ── */
+    .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:28px;transition:box-shadow .25s,transform .25s;}
+    .card:hover{box-shadow:var(--shadow-lg);transform:translateY(-2px);}
+    .card-flat{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;}
+
+    /* ── grid ── */
+    .g2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+    .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;}
+    .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+
+    /* ─────────────────────────────────
+       SECTION 1: HERO
+    ───────────────────────────────── */
+    .hero{
+      padding:56px 52px;
+      border-radius:28px;
+      background:linear-gradient(145deg,#ffffff 0%,#eef4ff 55%,#f0fdf4 100%);
+      border:1px solid rgba(37,99,235,.1);
+      box-shadow:var(--shadow-lg);
+      position:relative;overflow:hidden;
+      animation:fadeUp .7s ease both;
+    }
+    .hero::before{
+      content:"";position:absolute;right:-100px;top:-100px;
+      width:400px;height:400px;
+      background:radial-gradient(circle,rgba(37,99,235,.06) 0%,transparent 65%);
+      border-radius:50%;
+    }
+    .hero-tag{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;}
+    .hero h1{margin:0 0 16px;}
+    .hero h1 em{color:var(--blue);font-style:normal;}
+    .hero-kpis{
+      margin-top:32px;display:grid;
+      grid-template-columns:repeat(3,1fr);gap:16px;
+    }
+    .hero-kpi{
+      padding:20px;border-radius:18px;
+      background:rgba(255,255,255,.85);
+      border:1px solid rgba(15,23,42,.06);
+      backdrop-filter:blur(4px);
+      cursor:pointer;transition:all .25s;
+    }
+    .hero-kpi:hover{background:#fff;box-shadow:var(--shadow);}
+    .hero-kpi .kpi-label{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px;}
+    .hero-kpi .kpi-val{font-size:32px;font-weight:900;letter-spacing:-.04em;line-height:1;}
+    .hero-kpi .kpi-sub{margin-top:6px;font-size:13px;color:var(--muted);line-height:1.5;}
+    .kpi-up{color:var(--red);}
+    .kpi-down{color:var(--green);}
+    .kpi-shift{color:var(--purple);}
+
+    /* ─────────────────────────────────
+       SECTION 2: "WILL IT REACH ZERO?"
+    ───────────────────────────────── */
+    .verdict-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:20px;align-items:start;}
+    .verdict-box{
+      padding:36px;border-radius:24px;
+      background:linear-gradient(145deg,#0f172a 0%,#1e293b 100%);
+      color:#fff;box-shadow:var(--shadow-lg);
+      position:relative;overflow:hidden;
+    }
+    .verdict-box::before{
+      content:"？";position:absolute;right:24px;top:12px;
+      font-size:120px;font-weight:900;color:rgba(255,255,255,.04);
+      line-height:1;letter-spacing:-.05em;
+    }
+    .verdict-box .vb-tag{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#94a3b8;margin-bottom:14px;}
+    .verdict-box .vb-title{font-size:clamp(28px,3vw,40px);font-weight:900;line-height:1.1;letter-spacing:-.03em;margin-bottom:20px;}
+    .verdict-box .vb-title span{color:#60a5fa;}
+    .verdict-reasons{list-style:none;display:flex;flex-direction:column;gap:12px;}
+    .verdict-reasons li{
+      padding:12px 14px;border-radius:14px;
+      background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);
+      font-size:14px;line-height:1.6;color:#cbd5e1;
+      display:flex;gap:10px;align-items:flex-start;
+    }
+    .verdict-reasons li .vi{font-size:16px;flex-shrink:0;margin-top:1px;}
+
+    .verdict-cards{display:flex;flex-direction:column;gap:14px;}
+    .vc{
+      padding:20px;border-radius:18px;border:1px solid var(--border);
+      background:var(--card);box-shadow:var(--shadow-sm);
+      cursor:pointer;transition:all .25s;
+    }
+    .vc:hover{box-shadow:var(--shadow);transform:translateX(4px);}
+    .vc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+    .vc-name{font-size:15px;font-weight:800;}
+    .trend-badge{
+      display:inline-flex;align-items:center;gap:5px;
+      padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700;
+    }
+    .trend-up{background:var(--red-lt);color:var(--red);}
+    .trend-down{background:var(--green-lt);color:var(--green);}
+    .trend-split{background:var(--amber-lt);color:var(--amber);}
+    .trend-boom{background:var(--purple-lt);color:var(--purple);}
+    .vc-desc{font-size:13px;color:var(--muted);line-height:1.55;}
+
+    /* ─────────────────────────────────
+       SECTION 3: COST COMPONENTS
+    ───────────────────────────────── */
+    .cost-table{display:flex;flex-direction:column;gap:0;border-radius:20px;overflow:hidden;border:1px solid var(--border);box-shadow:var(--shadow);}
+    .ct-header{
+      display:grid;grid-template-columns:200px 1fr 1fr 180px 200px;
+      gap:0;background:#f8fafc;border-bottom:1px solid var(--border);
+    }
+    .ct-row{
+      display:grid;grid-template-columns:200px 1fr 1fr 180px 200px;
+      gap:0;background:var(--card);border-bottom:1px solid var(--border);
+      transition:background .2s;cursor:pointer;
+    }
+    .ct-row:last-child{border-bottom:none;}
+    .ct-row:hover{background:#f8fafc;}
+    .ct-cell{
+      padding:18px 20px;border-right:1px solid var(--border);
+      display:flex;flex-direction:column;justify-content:center;
+    }
+    .ct-cell:last-child{border-right:none;}
+    .ct-header .ct-cell{font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);}
+    .ct-name{font-size:15px;font-weight:800;margin-bottom:4px;}
+    .ct-tag{font-size:11px;color:var(--muted);}
+    .ct-amount{font-size:22px;font-weight:800;letter-spacing:-.03em;margin-bottom:4px;}
+    .ct-note{font-size:12px;color:var(--muted);line-height:1.5;}
+    .ct-amount-28{color:var(--blue);}
+    .ct-reason{font-size:13px;color:#334155;line-height:1.55;}
+
+    /* ─────────────────────────────────
+       SECTION 4: ENTERPRISE EXAMPLE
+    ───────────────────────────────── */
+    .example-header{
+      padding:28px 32px;border-radius:20px 20px 0 0;
+      background:linear-gradient(135deg,#1e3a8a 0%,#1d4ed8 100%);
+      color:#fff;
+    }
+    .example-header h2{color:#fff;margin:0;}
+    .example-header p{color:#bfdbfe;font-size:14px;margin-top:6px;}
+    .example-body{
+      background:var(--card);border:1px solid var(--border);
+      border-top:none;border-radius:0 0 20px 20px;
+      box-shadow:var(--shadow);overflow:hidden;
+    }
+    .ex-row{
+      display:grid;grid-template-columns:220px 1fr auto 1fr 160px;
+      border-bottom:1px solid var(--border);
+      align-items:stretch;
+    }
+    .ex-row:last-child{border-bottom:none;}
+    .ex-row.ex-header{background:#f8fafc;}
+    .ex-cell{padding:16px 20px;border-right:1px solid var(--border);display:flex;flex-direction:column;justify-content:center;}
+    .ex-cell:last-child{border-right:none;}
+    .ex-label{font-size:13px;font-weight:700;color:var(--muted);}
+    .ex-val{font-size:20px;font-weight:800;letter-spacing:-.03em;margin-top:2px;}
+    .ex-val-26{color:#374151;}
+    .ex-val-28{color:var(--blue);}
+    .ex-arrow{display:flex;align-items:center;justify-content:center;padding:16px 10px;border-right:1px solid var(--border);font-size:18px;color:var(--muted);}
+    .ex-delta{font-size:13px;font-weight:700;padding:4px 10px;border-radius:999px;}
+    .ex-delta.up{background:var(--red-lt);color:var(--red);}
+    .ex-delta.down{background:var(--green-lt);color:var(--green);}
+    .ex-delta.boom{background:var(--purple-lt);color:var(--purple);}
+    .ex-delta.split{background:var(--amber-lt);color:var(--amber);}
+    .ex-sub{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.4;}
+
+    /* total row */
+    .ex-total{
+      display:grid;grid-template-columns:220px 1fr auto 1fr 160px;
+      background:linear-gradient(135deg,#0f172a,#1e293b);color:#fff;
+      align-items:stretch;
+    }
+    .ex-total .ex-cell{border-color:rgba(255,255,255,.1);}
+    .ex-total .ex-label{color:#94a3b8;}
+    .ex-total .ex-val-26{color:#fff;}
+    .ex-total .ex-val-28{color:#60a5fa;}
+    .ex-total .ex-arrow{color:#475569;border-color:rgba(255,255,255,.1);}
+
+    /* ── bar chart inside example ── */
+    .ex-bar-wrap{padding:28px 32px;border-top:1px solid var(--border);}
+    .ex-bar-title{font-size:16px;font-weight:800;margin-bottom:18px;}
+    .bar-cmp{display:grid;grid-template-columns:160px 1fr 1fr;gap:12px;align-items:center;margin:12px 0;font-size:14px;}
+    .bar-cmp .b-label{color:var(--muted);font-weight:600;}
+    .bar-track{height:14px;border-radius:999px;background:#e2e8f0;overflow:hidden;position:relative;}
+    .bar-fill-26{height:100%;border-radius:999px;background:linear-gradient(90deg,#94a3b8,#475569);transition:width 1.2s cubic-bezier(.22,.61,.36,1);width:0;}
+    .bar-fill-28{height:100%;border-radius:999px;background:linear-gradient(90deg,#3b82f6,#2563eb);transition:width 1.2s cubic-bezier(.22,.61,.36,1);width:0;}
+    .bar-fill-26.anim,.bar-fill-28.anim{width:var(--w);}
+
+    /* visual cost structure */
+    .pie-row{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:24px;}
+    .pie-card{border-radius:18px;border:1px solid var(--border);padding:22px;background:var(--card);}
+    .pie-title{font-size:14px;font-weight:800;margin-bottom:16px;}
+    .seg-list{display:flex;flex-direction:column;gap:8px;}
+    .seg-item{display:flex;align-items:center;gap:10px;font-size:13px;}
+    .seg-bar-wrap{flex:1;height:10px;background:#e2e8f0;border-radius:999px;overflow:hidden;}
+    .seg-bar{height:100%;border-radius:999px;transition:width 1s ease;}
+    .seg-pct{font-size:12px;font-weight:700;min-width:36px;text-align:right;}
+
+    /* ─────────────────────────────────
+       SECTION 5: TREND DEEP DIVE CARDS
+    ───────────────────────────────── */
+    .trend-cards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+    .tc{border-radius:20px;border:1px solid var(--border);background:var(--card);overflow:hidden;box-shadow:var(--shadow-sm);transition:all .25s;}
+    .tc:hover{box-shadow:var(--shadow-lg);transform:translateY(-3px);}
+    .tc-top{padding:20px 22px 16px;border-bottom:1px solid var(--border);}
+    .tc-body{padding:18px 22px;}
+    .tc-name{font-size:16px;font-weight:800;margin:10px 0 4px;}
+    .tc-meta{font-size:12px;color:var(--muted);}
+    .tc-nums{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;margin:12px 0;}
+    .tc-num{text-align:center;}
+    .tc-year{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.04em;margin-bottom:2px;}
+    .tc-price{font-size:22px;font-weight:900;letter-spacing:-.03em;line-height:1.1;}
+    .tc-arrow{font-size:20px;color:var(--muted);}
+    .tc-drivers{display:flex;flex-direction:column;gap:6px;margin-top:4px;}
+    .tc-driver{font-size:13px;color:#334155;padding:8px 10px;background:#f8fafc;border-radius:10px;line-height:1.5;display:flex;gap:8px;}
+    .tc-driver-icon{flex-shrink:0;font-size:14px;}
+    .acc-bar{margin:14px 0 4px;display:grid;grid-template-columns:60px 1fr;gap:10px;align-items:center;font-size:12px;color:var(--muted);}
+    .acc-fill{height:8px;border-radius:999px;}
+
+    /* ─────────────────────────────────
+       SECTION 6: CONCLUSION
+    ───────────────────────────────── */
+    .conclusion{
+      padding:48px;border-radius:28px;
+      background:linear-gradient(145deg,#0f172a 0%,#1e293b 55%,#0f172a 100%);
+      color:#fff;box-shadow:var(--shadow-lg);
+      position:relative;overflow:hidden;
+    }
+    .conclusion::before{
+      content:"";position:absolute;right:-80px;bottom:-80px;
+      width:320px;height:320px;
+      background:radial-gradient(circle,rgba(37,99,235,.12) 0%,transparent 65%);
+      border-radius:50%;
+    }
+    .conclusion-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:40px;align-items:start;}
+    .conclusion h2{color:#fff;font-size:clamp(24px,2.8vw,38px);}
+    .conclusion-sub{font-size:15px;color:#94a3b8;line-height:1.75;margin-top:12px;}
+    .insight-pills{display:flex;flex-direction:column;gap:10px;margin-top:22px;}
+    .ip{
+      padding:14px 16px;border-radius:14px;
+      background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);
+      font-size:14px;color:#cbd5e1;line-height:1.6;
+      display:flex;gap:10px;align-items:flex-start;
+    }
+    .ip .ip-icon{flex-shrink:0;font-size:18px;margin-top:1px;}
+    .action-list{display:flex;flex-direction:column;gap:12px;}
+    .action-item{
+      padding:18px;border-radius:16px;
+      background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+      transition:background .25s;cursor:pointer;
+    }
+    .action-item:hover{background:rgba(255,255,255,.1);}
+    .action-item h3{font-size:15px;font-weight:800;color:#f1f5f9;margin-bottom:4px;}
+    .action-item p{font-size:13px;color:#94a3b8;line-height:1.55;}
+
+    /* ─────────────────────────────────
+       TOOLTIP OVERLAY
+    ───────────────────────────────── */
+    .overlay{display:none;position:fixed;inset:0;z-index:500;background:rgba(15,23,42,.45);backdrop-filter:blur(4px);align-items:center;justify-content:center;}
+    .overlay.on{display:flex;}
+    .overlay-box{
+      background:#fff;border-radius:24px;padding:36px;
+      max-width:520px;width:calc(100% - 40px);
+      box-shadow:0 32px 80px rgba(15,23,42,.2);
+      position:relative;animation:zoomIn .3s cubic-bezier(.22,.61,.36,1) both;
+    }
+    .overlay-close{
+      position:absolute;right:16px;top:16px;width:32px;height:32px;
+      border-radius:50%;background:#f1f5f9;border:none;cursor:pointer;
+      font-size:16px;color:var(--muted);display:flex;align-items:center;justify-content:center;
+      transition:background .2s;
+    }
+    .overlay-close:hover{background:#e2e8f0;}
+    .overlay-title{font-size:20px;font-weight:800;margin-bottom:10px;}
+    .overlay-body{font-size:15px;color:var(--muted);line-height:1.75;}
+
+    /* ── footer ── */
+    .footer{
+      margin-top:36px;padding:20px 24px;
+      background:var(--card);border:1px solid var(--border);border-radius:16px;
+      display:flex;justify-content:space-between;align-items:center;
+      font-size:12px;color:var(--muted);
+    }
+    .footer strong{color:var(--text);font-size:13px;}
+
+    /* ── animations ── */
+    @keyframes fadeUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+    @keyframes zoomIn{from{opacity:0;transform:scale(.92);}to{opacity:1;transform:scale(1);}}
+    .fade-section{opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease;}
+    .fade-section.visible{opacity:1;transform:translateY(0);}
+
+    /* ── responsive ── */
+    @media(max-width:1040px){
+      .ct-header,.ct-row{grid-template-columns:160px 1fr 1fr 140px 160px;}
+      .hero-kpis{grid-template-columns:1fr 1fr;}
+      .g4{grid-template-columns:1fr 1fr;}
+      .verdict-grid,.conclusion-grid{grid-template-columns:1fr;}
+      .trend-cards{grid-template-columns:1fr 1fr;}
+      .ex-row,.ex-total{grid-template-columns:160px 1fr auto 1fr 120px;}
+    }
+    @media(max-width:720px){
+      .wrap{padding:28px 0 60px;}
+      .hero{padding:28px 20px;}
+      .hero-kpis,.g2,.g3,.g4{grid-template-columns:1fr;}
+      .ct-header{display:none;}
+      .ct-row{display:block;padding:20px;border-bottom:1px solid var(--border);}
+      .ct-cell{border:none;padding:4px 0;}
+      .trend-cards{grid-template-columns:1fr;}
+      .ex-row,.ex-total{grid-template-columns:1fr;}
+      .ex-cell,.ex-arrow{border:none;border-bottom:1px solid var(--border);padding:10px 16px;}
+      .bar-cmp{grid-template-columns:120px 1fr 1fr;}
+      .pie-row{grid-template-columns:1fr;}
+      nav{gap:18px;}
+    }
+  </style>
+</head>
+<body>
+
+<div id="pb"></div>
+
+<!-- Overlay -->
+<div class="overlay" id="overlay">
+  <div class="overlay-box">
+    <button class="overlay-close" onclick="closeOverlay()">✕</button>
+    <div class="overlay-title" id="ol-title"></div>
+    <div class="overlay-body" id="ol-body"></div>
+  </div>
+</div>
+
+<!-- Nav -->
+<nav>
+  <span class="nav-brand">AI 成本演进 2026→2028</span>
+  <a href="#s-verdict">会归零吗</a>
+  <a href="#s-components">成本组成</a>
+  <a href="#s-example">企业示例</a>
+  <a href="#s-trends">涨跌深析</a>
+  <a href="#s-conclusion">结论</a>
+</nav>
+
+<div class="wrap">
+
+  <!-- ══════════════════════════════════
+       HERO
+  ══════════════════════════════════ -->
+  <div class="hero" id="s-top">
+    <div class="hero-tag">
+      <span class="eyebrow eyebrow-blue">2026 现状 → 2028 预估</span>
+      <span class="eyebrow eyebrow-purple">成本演进全景</span>
+    </div>
+    <h1>AI成本会归零吗？<br><em>不会</em>，但主角在换</h1>
+    <p class="lead" style="margin-top:14px;">
+      单次推理越来越便宜，但调用量、Agent链路、工程调度正在爆发。
+      这份分析拆解 6 大成本项在 2026→2028 的涨跌逻辑，并用一家中型企业的真实账单让你有直观感受。
+    </p>
+    <div class="hero-kpis">
+      <div class="hero-kpi" onclick="tip('单次推理成本下降5-10倍','得益于 MoE 架构、KV Cache、推理芯片迭代与云厂商价格战，单次 API 调用成本预计下降 5-10 倍。但"更便宜"不等于"更少花钱"——用量爆发会完全抵消单价红利，且还会大幅超出。')">
+        <div class="kpi-label">单次推理成本</div>
+        <div class="kpi-val kpi-down">↓ 5–10×</div>
+        <div class="kpi-sub">模型效率与竞争驱动，单价持续下探</div>
+      </div>
+      <div class="hero-kpi" onclick="tip('总调用量上涨20-30倍','AI 从"偶尔问答"进化为"全流程嵌入"：用户主动调用 × Agent 自动触发 × 系统后台集成，三重叠加。2026 年人均约 20 次/天，2028 年含系统自动调用将达 200 次/天，增幅约 10 倍；叠加渗透率从 30% 升至 80%，总调用量整体暴涨 20-30 倍。')">
+        <div class="kpi-label">总调用量</div>
+        <div class="kpi-val kpi-up">↑ 20–30×</div>
+        <div class="kpi-sub">功能→流程，Agent 自动触发放大规模</div>
+      </div>
+      <div class="hero-kpi" onclick="tip('AI 总支出不降反升','单价下 5-10 倍，用量涨 20-30 倍，净效果：AI 总支出不降反升，且成本结构被完全重写。控制 AI 成本的方式，从"选哪家云"转向"如何管理调用行为与任务链长度"。这是 Jevons 悖论在 AI 领域的真实演绎。')">
+        <div class="kpi-label">AI 总支出</div>
+        <div class="kpi-val kpi-shift">↑ 净增加</div>
+        <div class="kpi-sub">单价 ÷10，用量 ×20，总账单不降反升</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       S2: 会归零吗？
+  ══════════════════════════════════ -->
+  <div class="section fade-section" id="s-verdict">
+    <span class="eyebrow eyebrow-blue">核心问题</span>
+    <h2 style="margin-top:10px;">AI 成本会归零吗？</h2>
+    <p class="lead">历史上每次技术成本大幅下降都伴随着需求的爆炸。电、带宽、云存储——AI 正在重演同一剧本。</p>
+
+    <div class="verdict-grid" style="margin-top:22px;">
+      <div class="verdict-box">
+        <div class="vb-tag">直接结论</div>
+        <div class="vb-title">不会归零。<br>但<span>成本的主角</span><br>正在换人。</div>
+        <ul class="verdict-reasons">
+          <li><span class="vi">🏭</span><div>GPU 算力是物理基础设施，有固定成本下限，不可能免费。即便效率翻倍，绝对量仍然庞大。</div></li>
+          <li><span class="vi">📈</span><div>Jevons 悖论：效率越高，使用越多，总消耗不降反升。1900 年煤炭效率提升 3 倍，消耗量反升 10 倍。</div></li>
+          <li><span class="vi">🤖</span><div>Agent 执行是新变量——一次用户指令背后可能触发 20-50 次 API 调用，将从零暴涨至最大成本项。</div></li>
+          <li><span class="vi">🔒</span><div>合规与安全不会消失。AI 内容审查、审计日志、数据主权的运营成本随规模线性增长。</div></li>
+        </ul>
+      </div>
+
+      <div class="verdict-cards">
+        <div class="vc" onclick="tip('GPU 算力：下降但不消失','H100→H200→B200，芯片更新带来效率提升，单位算力成本持续下降。但推理需求增长更快，总 GPU 采购不会减少，绝对成本仅温和下滑。')">
+          <div class="vc-top"><span class="vc-name">⚙️ GPU 算力</span><span class="trend-badge trend-down">↓ 小幅下降</span></div>
+          <div class="vc-desc">硬件更高效，但规模增长抵消降幅，仍是最大底座成本。</div>
+        </div>
+        <div class="vc" onclick="tip('Token/推理：单价跌，总账涨','每次调用越来越便宜，但调用量从 60 万次/天涨到 1600 万次/天。总推理成本从 ~$18 万/月升至 ~$48 万/月，翻近 3 倍。')">
+          <div class="vc-top"><span class="vc-name">💬 Token / 推理</span><span class="trend-badge trend-up">↑ 总量上升</span></div>
+          <div class="vc-desc">单价跌 10 倍，但调用量涨 27 倍，净结果：总成本上升。</div>
+        </div>
+        <div class="vc" onclick="tip('模型训练：从P&L消失','超大模型训练成本由基础模型厂商（OpenAI、Google、Anthropic）承担，应用层企业转向 LoRA 微调、RAG、Prompt 工程，训练成本从应用层账单中消失。')">
+          <div class="vc-top"><span class="vc-name">🧠 模型训练</span><span class="trend-badge trend-split">± 结构分化</span></div>
+          <div class="vc-desc">头部厂商训练成本暴涨，应用层企业账单中这项接近消失。</div>
+        </div>
+        <div class="vc" onclick="tip('存储/带宽：被低估的涨价项','多模态普及 + 合规审计 + Agent 中间状态存储，人均数据量从 50MB/月升至 2GB/月，存储带宽成本跳升 5 倍以上，是最容易被忽视的隐形成本。')">
+          <div class="vc-top"><span class="vc-name">💾 存储 / 带宽</span><span class="trend-badge trend-up">↑ 中幅上涨</span></div>
+          <div class="vc-desc">多模态 + 合规审计日志，是最容易被低估的涨价项。</div>
+        </div>
+        <div class="vc" onclick="tip('工程/调度：新刚需','模型网关、语义缓存、分层路由、配额管理、成本归因——这套 AI 中台在 2026 年只是少数大厂的优势，2028 年将成为所有 AI 产品公司的标配。团队从 10 人扩到 30-50 人。')">
+          <div class="vc-top"><span class="vc-name">🔧 工程 / 调度</span><span class="trend-badge trend-up">↑ 大幅上涨</span></div>
+          <div class="vc-desc">分层路由、缓存、网关从"加分项"变成"活命能力"。</div>
+        </div>
+        <div class="vc" onclick="tip('Agent执行：从零到最大项','2026 年几乎为零，2028 年将成为整个成本结构中最大的单项。一个 Agent 任务含 10-50 步 API 调用，500 万任务/天规模下月成本超 $150 万。')">
+          <div class="vc-top"><span class="vc-name">🚀 Agent 执行</span><span class="trend-badge trend-boom">💥 爆发新增</span></div>
+          <div class="vc-desc">从接近零到最大成本项，彻底重写成本结构。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       S3: 成本组成详细表
+  ══════════════════════════════════ -->
+  <div class="section fade-section" id="s-components">
+    <span class="eyebrow eyebrow-blue">6 大成本项拆解</span>
+    <h2 style="margin-top:10px;">每项成本：涨还是跌？为什么？</h2>
+    <p class="lead">点击任意行查看深度分析。数据为 10 万用户规模的 SaaS 产品示意模型。</p>
+
+    <div class="cost-table" style="margin-top:20px;">
+      <div class="ct-header">
+        <div class="ct-cell">成本项</div>
+        <div class="ct-cell">2026 当前量级</div>
+        <div class="ct-cell">2028 预估量级</div>
+        <div class="ct-cell">趋势</div>
+        <div class="ct-cell">核心驱动因素</div>
+      </div>
+
+      <div class="ct-row" onclick="tip('GPU / 算力成本 —— 详细分析','驱动力：H100 → H200 → B200 每代效率提升约 40-60%；AMD MI300X 加入竞争；国内昇腾、摩尔线程逐步可用，多元竞争压价。\n\n为何仍贵：推理需求增速远超芯片效率提升；企业为降低延迟需要大量在线 GPU 资源；不可能只靠 CPU 推理大模型。\n\n量级估算：假设 10 万用户规模 SaaS，2026 年需 约 800 个 H100 GPU 小时/天，2028 年含 Agent 工作负载约需 1000 个，但单价从 $2.5 降至 $1.5/小时，月成本约 $150 万。')">
+        <div class="ct-cell"><div class="ct-name">⚙️ GPU / 算力</div><div class="ct-tag">基础底座 · 固定大项</div></div>
+        <div class="ct-cell"><div class="ct-amount">~$200万 / 月</div><div class="ct-note">H100 约 $2.5/GPU时，仍是最大底座成本</div></div>
+        <div class="ct-cell"><div class="ct-amount ct-amount-28">~$150万 / 月</div><div class="ct-note">$1.2–1.8/GPU时，单价下探但需求量仍大</div></div>
+        <div class="ct-cell"><span class="trend-badge trend-down">↓ 小幅下降</span></div>
+        <div class="ct-cell"><div class="ct-reason">新代芯片效率↑，AMD 竞争、国产替代；但规模增长抵消了大半降幅</div></div>
+      </div>
+
+      <div class="ct-row" onclick="tip('Token / 推理成本 —— 最值得警惕','这是 2028 年最容易"悄悄失控"的成本项。\n\n单价趋势：GPT-4 Turbo 从 2023 年的 $0.06/千 Token 降至今日 $0.01，预计 2028 年主流大模型约 $0.001/千 Token，下降约 10 倍。\n\n量级趋势：2026 年 10 万用户 × 30% 渗透 × 20 次/天 × 约 1000 Token/次 = 约 60 亿 Token/月。2028 年 80% 渗透 × 200 次/天 × 含 Agent 约 2000 Token/次 = 约 3200 亿 Token/月，增长约 53 倍。\n\n最终结果：单价 ÷10，量 ×53，总成本 ×5。这就是 Jevons 悖论。')">
+        <div class="ct-cell"><div class="ct-name">💬 Token / 推理</div><div class="ct-tag">⚠️ 最值得警惕</div></div>
+        <div class="ct-cell"><div class="ct-amount">~$18万 / 月</div><div class="ct-note">60万次/天，约 $0.01/次；单价高但频率有限</div></div>
+        <div class="ct-cell"><div class="ct-amount ct-amount-28">~$48万 / 月</div><div class="ct-note">1600万次/天，约 $0.001/次；单次便宜总账变大</div></div>
+        <div class="ct-cell"><span class="trend-badge trend-up">↑ 总量上升</span></div>
+        <div class="ct-cell"><div class="ct-reason">Jevons 悖论：单价 ÷10，但调用量 ×27，总成本净增约 2.7 倍</div></div>
+      </div>
+
+      <div class="ct-row" onclick="tip('模型训练成本 —— 应用层的退出','2026 年现状：部分企业仍在探索全量微调或自训领域模型，成本 $500 万～$1 亿不等，对大多数团队是沉重负担。\n\n2028 年变化：\n①基础层（OpenAI/Google/Anthropic）预训练成本继续暴涨至 $1 亿～$10 亿；\n②应用层大规模转向 LoRA 微调（成本约 $1万/次）、RAG 检索增强（几乎零成本）、Prompt 工程；\n③开源模型（Llama、Mistral、Qwen）成熟度提升，可直接作为基座使用。\n\n结论：这笔成本从大多数应用层企业的 P&L 中"消失"，但基础模型厂商承担了更高成本。')">
+        <div class="ct-cell"><div class="ct-name">🧠 模型训练</div><div class="ct-tag">外部化趋势 · 结构分化</div></div>
+        <div class="ct-cell"><div class="ct-amount">$500万–$1亿</div><div class="ct-note">自训/重微调探索期，多数团队仍在投入</div></div>
+        <div class="ct-cell"><div class="ct-amount ct-amount-28" style="font-size:16px;">头部↑ 应用层→0</div><div class="ct-note">LoRA/RAG 替代全量训练，该项从应用层消失</div></div>
+        <div class="ct-cell"><span class="trend-badge trend-split">± 结构分化</span></div>
+        <div class="ct-cell"><div class="ct-reason">头部厂商训练成本翻10倍；应用层转向轻量路线，几乎退出训练竞赛</div></div>
+      </div>
+
+      <div class="ct-row" onclick="tip('存储/带宽 —— 被低估的隐形杀手','2026 年：以文本为主，对话记录 + 用户资料 + 基础向量库，人均约 50MB/月，成本不痛不痒。\n\n2028 年三大驱动：\n① 多模态普及：语音输入、图像分析、视频摘要成为标配，人均数据量 ×30；\n② 合规审计：EU AI Act、金融/医疗监管要求对每次 AI 调用留存完整输入输出记录，数据保留周期 3-7 年；\n③ Agent 中间状态：多步执行产生大量工具调用日志、中间结果、上下文快照。\n\n结果：人均从 50MB 升至约 2GB/月，存储带宽月成本从 $2 万跳升至 $10 万+，增幅 5-10 倍。这往往是 CFO 季度复盘时最惊讶的一项。')">
+        <div class="ct-cell"><div class="ct-name">💾 存储 / 带宽</div><div class="ct-tag">被低估的涨价项</div></div>
+        <div class="ct-cell"><div class="ct-amount">~$2万 / 月</div><div class="ct-note">文本为主，人均 ~50MB/月，感知不强</div></div>
+        <div class="ct-cell"><div class="ct-amount ct-amount-28">~$10万+ / 月</div><div class="ct-note">多模态+审计日志，人均升至 ~2GB/月</div></div>
+        <div class="ct-cell"><span class="trend-badge trend-up">↑ 中幅上涨</span></div>
+        <div class="ct-cell"><div class="ct-reason">多模态数据量爆发 × 合规留存要求 × Agent 中间状态记录，三重叠加</div></div>
+      </div>
+
+      <div class="ct-row" onclick="tip('工程/调度 —— 从加分项到活命能力','2026 年：约 10 人工程团队负责基本 API 接入，成本约 $5 万/月。路由和缓存是"有了更好"的能力。\n\n2028 年必建系统清单：\n① 模型网关：统一管理所有模型调用，支持多厂商动态切换；\n② 语义缓存：对相似请求复用缓存，减少 30-50% 重复调用；\n③ 分层路由：简单任务 → 小模型（Mistral 7B），复杂任务 → GPT-4/Claude；\n④ 配额管理：对部门、用户、场景设置消耗上限；\n⑤ 成本归因：每笔 AI 费用精确溯源到功能/用户/部门。\n\n团队扩至 30-50 人，月成本 $30-80 万。但建好这套系统可节省 30-50% 的 Token 成本，是 ROI 最高的投资。')">
+        <div class="ct-cell"><div class="ct-name">🔧 工程 / 调度</div><div class="ct-tag">新核心能力 · 利润率护城河</div></div>
+        <div class="ct-cell"><div class="ct-amount">~$5万 / 月</div><div class="ct-note">~10 人团队，平台能力建设初期</div></div>
+        <div class="ct-cell"><div class="ct-amount ct-amount-28">~$30–80万 / 月</div><div class="ct-note">30-50 人团队，路由/缓存/网关/配额成标配</div></div>
+        <div class="ct-cell"><span class="trend-badge trend-up">↑ 大幅上涨</span></div>
+        <div class="ct-cell"><div class="ct-reason">AI 中台从"可选项"变"必选项"；建好可节省 30-50% Token 成本，ROI 极高</div></div>
+      </div>
+
+      <div class="ct-row" onclick="tip('Agent 执行 —— 2028 年最大新增项','2026 年：Agent 执行几乎为零，大多数 AI 产品仍是单轮问答或简单对话。\n\n2028 年 Agent 任务的成本构成（以一次中等复杂任务为例）：\n• 规划步骤：3-5 次 LLM 调用（分析目标、制定计划、确认路径）\n• 工具执行：5-15 次工具调用（搜索、代码执行、文件读写、API 调用）\n• 自我检查：2-5 次验证调用（检查结果质量、发现错误、修正输出）\n• 总计：约 10-50 次 API 调用 / 任务（是普通对话的 10-50 倍）\n\n规模化后：500 万任务/天 × 平均 20 次调用 = 1 亿次 API 调用/天，月成本 $100-200 万。\n\n这将成为 2028 年整个 AI 成本结构中最大的单项，彻底改变产品定价逻辑。')">
+        <div class="ct-cell"><div class="ct-name">🚀 Agent 执行</div><div class="ct-tag">💥 未来新增最大项</div></div>
+        <div class="ct-cell"><div class="ct-amount">≈ 0</div><div class="ct-note">多数仍是单轮问答，任务链未真正铺开</div></div>
+        <div class="ct-cell"><div class="ct-amount ct-amount-28">~$150万+ / 月</div><div class="ct-note">500万任务/天 × 20步链路，成本结构第一大项</div></div>
+        <div class="ct-cell"><span class="trend-badge trend-boom">💥 爆发新增</span></div>
+        <div class="ct-cell"><div class="ct-reason">从零到最大项；一次 Agent 任务 = 10-50 次 API 调用；规模化后彻底重写成本账单</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       S4: 企业示例
+  ══════════════════════════════════ -->
+  <div class="section fade-section" id="s-example">
+    <span class="eyebrow eyebrow-green">企业示例</span>
+    <h2 style="margin-top:10px;">一家中型 SaaS 公司的真实账单对比</h2>
+    <p class="lead">假设：10 万企业用户规模，AI 功能覆盖工作流辅助、内容生成、数据分析与 Agent 任务执行。</p>
+
+    <div style="margin-top:20px;">
+      <div class="example-header">
+        <h2>📊 月度 AI 总成本对比</h2>
+        <p>「云跃 SaaS」· 10 万企业用户 · 工作流 + 内容 + 数据分析 + Agent</p>
+      </div>
+      <div class="example-body">
+        <!-- header row -->
+        <div class="ex-row ex-header">
+          <div class="ex-cell"><div class="ex-label">成本项</div></div>
+          <div class="ex-cell"><div class="ex-label">2026 月均成本</div></div>
+          <div class="ex-arrow"></div>
+          <div class="ex-cell"><div class="ex-label">2028 月均成本</div></div>
+          <div class="ex-cell"><div class="ex-label">变化幅度</div></div>
+        </div>
+
+        <!-- rows -->
+        <div class="ex-row" onclick="tip('GPU / 算力 — 示例解读','2026 年：自建 + 托管 GPU，约 800 GPU 小时/天，H100 $2.5/小时 = $200 万/月。\n\n2028 年：Agent 工作负载增加但新代芯片效率提升（H200/B200），约 1000 GPU 小时/天但单价降至 $1.5，= $150 万/月，降幅 25%。\n\n团队启示：GPU 成本下降是结构性的，但降幅被规模增长抵消，不要指望这项省大钱。')">
+          <div class="ex-cell"><div class="ex-label">⚙️ GPU / 算力</div><div class="ex-sub">推理 + 训练 + 在线服务</div></div>
+          <div class="ex-cell"><div class="ex-val ex-val-26">$200 万</div><div class="ex-sub">~800 GPU时/天 · H100 $2.5/时</div></div>
+          <div class="ex-arrow">→</div>
+          <div class="ex-cell"><div class="ex-val ex-val-28">$150 万</div><div class="ex-sub">~1000 GPU时/天 · 新代芯片 $1.5/时</div></div>
+          <div class="ex-cell"><span class="ex-delta down">↓ -25%</span><div class="ex-sub">唯一下降项</div></div>
+        </div>
+
+        <div class="ex-row" onclick="tip('Token / 推理 — 示例解读','2026 年：10万用户 × 30% 渗透 × 20次/天 × 1000 Token/次 = 60亿 Token/月；GPT-4 $0.01/千 Token = $6万 + 其他模型混合 ≈ $18万/月。\n\n2028 年：10万用户 × 80% 渗透 × 200次/天 × 含 Agent 平均 2000 Token/次 = 3200亿 Token/月；但单价降至 $0.0015/千 Token（分层路由后） ≈ $48万/月。\n\n关键洞察：单价降 10 倍，用量涨 53 倍，净涨 2.7 倍。管控这项成本的核心是"分层路由"——把 70% 的简单任务路由给小模型处理。')">
+          <div class="ex-cell"><div class="ex-label">💬 Token / 推理</div><div class="ex-sub">API 调用费用（最值得警惕）</div></div>
+          <div class="ex-cell"><div class="ex-val ex-val-26">$18 万</div><div class="ex-sub">60万次/天 · ~$0.01/次</div></div>
+          <div class="ex-arrow">→</div>
+          <div class="ex-cell"><div class="ex-val ex-val-28">$48 万</div><div class="ex-sub">1600万次/天 · ~$0.001/次（路由后）</div></div>
+          <div class="ex-cell"><span class="ex-delta up">↑ +167%</span><div class="ex-sub">Jevons 悖论</div></div>
+        </div>
+
+        <div class="ex-row" onclick="tip('模型训练 — 示例解读','2026 年：该企业在探索垂直领域模型微调（合同理解、客户意图分类），每季度约 $30 万训练费用 = $10 万/月。\n\n2028 年：完全转向 LoRA 微调 + RAG 检索增强，单次微调 $0.5-2 万，按需进行，月均 $1 万以内。\n\n这是唯一从 P&L 中实质性消失的成本项，得益于：①开源基座模型成熟；②LoRA 训练效率提升；③RAG 替代垂直模型的场景增多。')">
+          <div class="ex-cell"><div class="ex-label">🧠 模型训练</div><div class="ex-sub">微调 · 领域模型</div></div>
+          <div class="ex-cell"><div class="ex-val ex-val-26">$10 万</div><div class="ex-sub">垂直微调每季度 ~$30 万</div></div>
+          <div class="ex-arrow">→</div>
+          <div class="ex-cell"><div class="ex-val ex-val-28">~$1 万</div><div class="ex-sub">转 LoRA/RAG，几乎退出训练</div></div>
+          <div class="ex-cell"><span class="ex-delta down">↓ -90%</span><div class="ex-sub">从 P&L 消失</div></div>
+        </div>
+
+        <div class="ex-row" onclick="tip('存储/带宽 — 示例解读','2026 年：主要是对话历史 + 用户上传文档 + 基础向量库，人均 50MB/月，10万用户 ≈ 5TB，云存储 + CDN ≈ $2 万/月。\n\n2028 年驱动增长的三大因素：\n①语音/图像输入普及：人均多媒体数据增 10 倍；\n②合规留存：每次 AI 调用的完整 I/O 需要保留 3 年（金融/医疗合规），数据量增 20 倍；\n③Agent 执行快照：每步工具调用的中间状态记录。\n总计人均 2GB/月，= 200TB，月成本 $10 万。\n\n团队启示：提前规划数据分层存储策略（热/温/冷），可节省 60% 存储成本。')">
+          <div class="ex-cell"><div class="ex-label">💾 存储 / 带宽</div><div class="ex-sub">对话 · 多模态 · 审计日志</div></div>
+          <div class="ex-cell"><div class="ex-val ex-val-26">$2 万</div><div class="ex-sub">文本为主，人均 ~50MB/月</div></div>
+          <div class="ex-arrow">→</div>
+          <div class="ex-cell"><div class="ex-val ex-val-28">$10 万</div><div class="ex-sub">多模态+合规日志，人均 ~2GB/月</div></div>
+          <div class="ex-cell"><span class="ex-delta up">↑ +400%</span><div class="ex-sub">被低估的隐形杀手</div></div>
+        </div>
+
+        <div class="ex-row" onclick="tip('工程/调度 — 示例解读','2026 年：10 人工程团队，负责基本 API 集成、提示管理、基础监控，月成本 $5 万（人力）。\n\n2028 年扩张路径：\n· 2026 Q4：建模型网关，实现多厂商统一接入 (+5人)\n· 2027 Q1：语义缓存上线，减少 30% 重复调用 (+3人)\n· 2027 Q2：分层路由，70% 请求走小模型 (+4人)\n· 2027 Q3：配额管理+成本归因系统 (+3人)\n· 2027 Q4：Agent 监控+成本预警 (+5人)\n合计约 30 人，月成本 $45 万（含工具授权）。\n\n投资回报：这 $45 万工程投入，每月节省 Token 成本约 $25-30 万，3-4 个月回本。')">
+          <div class="ex-cell"><div class="ex-label">🔧 工程 / 调度</div><div class="ex-sub">AI 中台 · 路由 · 缓存 · 配额</div></div>
+          <div class="ex-cell"><div class="ex-val ex-val-26">$5 万</div><div class="ex-sub">10人团队，基础 API 集成</div></div>
+          <div class="ex-arrow">→</div>
+          <div class="ex-cell"><div class="ex-val ex-val-28">$45 万</div><div class="ex-sub">30人团队，完整 AI 中台能力</div></div>
+          <div class="ex-cell"><span class="ex-delta up">↑ +800%</span><div class="ex-sub">节省 Token 成本，ROI 高</div></div>
+        </div>
+
+        <div class="ex-row" onclick="tip('Agent 执行 — 示例解读','2026 年：产品中有"AI 助手"功能，但主要是问答，没有真正的自主 Agent 执行，成本忽略不计。\n\n2028 年 Agent 任务清单（该 SaaS 的典型场景）：\n· 合同审查 Agent：上传合同 → 分析条款 → 标记风险 → 生成摘要，约 25 步 API 调用\n· 竞品监控 Agent：搜索 → 分析 → 对比 → 生成报告，约 40 步调用\n· 数据分析 Agent：读数据 → 清洗 → 分析 → 可视化 → 洞察，约 30 步调用\n\n日均 5 万 Agent 任务 × 平均 25 步 × $0.001/次 = $1.25 万/天 = $37 万/月。\n随业务增长预计达 $100-200 万/月。\n\n团队启示：Agent 计费模型（按任务而非按 Token）是应对这项成本的关键产品决策。')">
+          <div class="ex-cell"><div class="ex-label">🚀 Agent 执行</div><div class="ex-sub">💥 2028 年最大新增项</div></div>
+          <div class="ex-cell"><div class="ex-val ex-val-26">≈ $0</div><div class="ex-sub">单轮问答为主，无真实 Agent</div></div>
+          <div class="ex-arrow">→</div>
+          <div class="ex-cell"><div class="ex-val ex-val-28">$37–150 万</div><div class="ex-sub">5万+ 任务/天 × 平均25步调用链</div></div>
+          <div class="ex-cell"><span class="ex-delta boom">💥 从零爆发</span><div class="ex-sub">将超越 GPU 成为第一大项</div></div>
+        </div>
+
+        <!-- total -->
+        <div class="ex-total">
+          <div class="ex-cell"><div class="ex-label">合计月度 AI 成本</div><div class="ex-sub" style="color:#64748b;">含所有成本项</div></div>
+          <div class="ex-cell"><div class="ex-val ex-val-26" style="font-size:28px;">$235 万</div><div class="ex-sub">约占营收的 12-18%（取决于定价）</div></div>
+          <div class="ex-arrow">→</div>
+          <div class="ex-cell"><div class="ex-val ex-val-28" style="font-size:28px;">$291–441 万</div><div class="ex-sub">Agent 成本区间取低/高值；占营收比需靠定价转嫁</div></div>
+          <div class="ex-cell">
+            <span class="ex-delta boom" style="font-size:13px;">↑ 约 +25%–+88%</span>
+            <div class="ex-sub" style="color:#64748b;margin-top:4px;">Agent 规模决定区间上限</div>
+          </div>
+        </div>
+
+        <!-- bar comparison -->
+        <div class="ex-bar-wrap">
+          <div class="ex-bar-title">各项成本可视化对比</div>
+          <div class="bar-cmp">
+            <div class="b-label">GPU / 算力</div>
+            <div class="bar-track"><div class="bar-fill-26" style="--w:88%"></div></div>
+            <div class="bar-track"><div class="bar-fill-28" style="--w:68%"></div></div>
+          </div>
+          <div class="bar-cmp">
+            <div class="b-label">Token / 推理</div>
+            <div class="bar-track"><div class="bar-fill-26" style="--w:8%"></div></div>
+            <div class="bar-track"><div class="bar-fill-28" style="--w:22%"></div></div>
+          </div>
+          <div class="bar-cmp">
+            <div class="b-label">模型训练</div>
+            <div class="bar-track"><div class="bar-fill-26" style="--w:4%"></div></div>
+            <div class="bar-track"><div class="bar-fill-28" style="--w:0.5%"></div></div>
+          </div>
+          <div class="bar-cmp">
+            <div class="b-label">存储 / 带宽</div>
+            <div class="bar-track"><div class="bar-fill-26" style="--w:1%"></div></div>
+            <div class="bar-track"><div class="bar-fill-28" style="--w:5%"></div></div>
+          </div>
+          <div class="bar-cmp">
+            <div class="b-label">工程 / 调度</div>
+            <div class="bar-track"><div class="bar-fill-26" style="--w:2%"></div></div>
+            <div class="bar-track"><div class="bar-fill-28" style="--w:20%"></div></div>
+          </div>
+          <div class="bar-cmp">
+            <div class="b-label">Agent 执行</div>
+            <div class="bar-track"><div class="bar-fill-26" style="--w:0.1%"></div></div>
+            <div class="bar-track"><div class="bar-fill-28" style="--w:68%"></div></div>
+          </div>
+          <div style="display:flex;gap:16px;margin-top:14px;font-size:13px;color:var(--muted);">
+            <span style="display:flex;align-items:center;gap:6px;"><span style="width:16px;height:8px;background:linear-gradient(90deg,#94a3b8,#475569);border-radius:4px;display:inline-block;"></span>2026</span>
+            <span style="display:flex;align-items:center;gap:6px;"><span style="width:16px;height:8px;background:linear-gradient(90deg,#3b82f6,#2563eb);border-radius:4px;display:inline-block;"></span>2028</span>
+            <span style="color:var(--muted);">（条形长度按占各年总成本比例，而非绝对值）</span>
+          </div>
+
+          <!-- cost structure donut-style -->
+          <div class="pie-row">
+            <div class="pie-card">
+              <div class="pie-title">2026 成本结构占比</div>
+              <div class="seg-list">
+                <div class="seg-item">
+                  <span style="font-size:12px;color:var(--muted);width:72px;">GPU 算力</span>
+                  <div class="seg-bar-wrap"><div class="seg-bar" style="width:0%;background:#818cf8;--tw:85%"></div></div>
+                  <span class="seg-pct" style="color:#6366f1;">85%</span>
+                </div>
+                <div class="seg-item">
+                  <span style="font-size:12px;color:var(--muted);width:72px;">Token 推理</span>
+                  <div class="seg-bar-wrap"><div class="seg-bar" style="width:0%;background:#38bdf8;--tw:8%"></div></div>
+                  <span class="seg-pct" style="color:#0ea5e9;">8%</span>
+                </div>
+                <div class="seg-item">
+                  <span style="font-size:12px;color:var(--muted);width:72px;">模型训练</span>
+                  <div class="seg-bar-wrap"><div class="seg-bar" style="width:0%;background:#fbbf24;--tw:4%"></div></div>
+                  <span class="seg-pct" style="color:#d97706;">4%</span>
+                </div>
+                <div class="seg-item">
+                  <span style="font-size:12px;color:var(--muted);width:72px;">存储带宽</span>
+                  <div class="seg-bar-wrap"><div class="seg-bar" style="width:0%;background:#34d399;--tw:1%"></div></div>
+                  <span class="seg-pct" style="color:#059669;">1%</span>
+                </div>
+                <div class="seg-item">
+                  <span style="font-size:12px;color:var(--muted);width:72px;">工程调度</span>
+                  <div class="seg-bar-wrap"><div class="seg-bar" style="width:0%;background:#fb923c;--tw:2%"></div></div>
+                  <span class="seg-pct" style="color:#ea580c;">2%</span>
+                </div>
+                <div class="seg-item">
+                  <span style="font-size:12px;color:var(--muted);width:72px;">Agent 执行</span>
+                  <div class="seg-bar-wrap"><div class="seg-bar" style="width:0%;background:#c084fc;--tw:0%"></div></div>
+                  <span class="seg-pct" style="color:#9333ea;">~0%</span>
+                </div>
+              </div>
+            </div>
+            <div class="pie-card" style="border-color:var(--blue-md);">
+              <div class="pie-title" style="color:var(--blue);">2028 成本结构占比（Agent 高值情景）</div>
+              <div class="seg-list">
+                <div class="seg-item">
+                  <span style="font-size:12px;color:var(--muted);width:72px;">GPU 算力</span>
+                  <div class="seg-bar-wrap"><div class="seg-bar" style="width:0%;background:#818cf8;--tw:34%"></div></div>
+                  <span class="seg-pct" style="color:#6366f1;">34%</span>
+                </div>
+                <div class="seg-item">
+                  <span style="font-size:12px;color:var(--muted);width:72px;">Token 推理</span>
+                  <div class="seg-bar-wrap"><div class="seg-bar" style="width:0%;background:#38bdf8;--tw:11%"></div></div>
+                  <span class="seg-pct" style="color:#0ea5e9;">11%</span>
+                </div>
+                <div class="seg-item">
+                  <span style="font-size:12px;color:var(--muted);width:72px;">模型训练</span>
+                  <div class="seg-bar-wrap"><div class="seg-bar" style="width:0%;background:#fbbf24;--tw:0.2%"></div></div>
+                  <span class="seg-pct" style="color:#d97706;">&lt;1%</span>
+                </div>
+                <div class="seg-item">
+                  <span style="font-size:12px;color:var(--muted);width:72px;">存储带宽</span>
+                  <div class="seg-bar-wrap"><div class="seg-bar" style="width:0%;background:#34d399;--tw:2%"></div></div>
+                  <span class="seg-pct" style="color:#059669;">2%</span>
+                </div>
+                <div class="seg-item">
+                  <span style="font-size:12px;color:var(--muted);width:72px;">工程调度</span>
+                  <div class="seg-bar-wrap"><div class="seg-bar" style="width:0%;background:#fb923c;--tw:10%"></div></div>
+                  <span class="seg-pct" style="color:#ea580c;">10%</span>
+                </div>
+                <div class="seg-item">
+                  <span style="font-size:12px;color:var(--muted);width:72px;">Agent 执行</span>
+                  <div class="seg-bar-wrap"><div class="seg-bar" style="width:0%;background:#c084fc;--tw:34%"></div></div>
+                  <span class="seg-pct" style="color:#9333ea;">34%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       S5: TREND DEEP DIVE
+  ══════════════════════════════════ -->
+  <div class="section fade-section" id="s-trends">
+    <span class="eyebrow eyebrow-purple">深度拆解</span>
+    <h2 style="margin-top:10px;">每项涨跌背后，核心驱动力是什么？</h2>
+    <p class="lead">点击卡片查看完整分析。理解驱动力才能制定真正有效的成本控制策略。</p>
+
+    <div class="trend-cards" style="margin-top:22px;">
+
+      <div class="tc" onclick="tip('GPU 下降的三大技术驱动力','① 架构迭代：H100 → H200（内存带宽 +50%，推理速度 +45%）→ B200（相比 H100 推理 token/s ×30）。每代硬件单位算力成本下降约 40%。\n\n② 竞争格局：AMD MI300X/MI350 与 NVIDIA 竞争加剧；国内芯片（昇腾 910C/D、摩尔线程 S4000）在特定场景可替代；开放算力平台（Lambda、CoreWeave）打破 AWS/Azure/GCP 三强垄断。\n\n③ 效率优化：Speculative Decoding（推测解码）减少 GPU 等待时间；Continuous Batching 提升 GPU 利用率从 ~40% 到 ~85%；量化（AWQ/GPTQ）减少模型显存占用 50-75%。')">
+        <div class="tc-top">
+          <span class="eyebrow eyebrow-green" style="font-size:11px;">⚙️ GPU / 算力</span>
+          <span class="trend-badge trend-down">↓ 下降</span>
+          <div class="tc-name">单位算力成本持续下探</div>
+          <div class="tc-meta">芯片迭代 + 竞争 + 软件优化</div>
+        </div>
+        <div class="tc-body">
+          <div class="tc-nums">
+            <div class="tc-num"><div class="tc-year">2026</div><div class="tc-price">$2.5/时</div></div>
+            <div class="tc-arrow">→</div>
+            <div class="tc-num"><div class="tc-year">2028</div><div class="tc-price" style="color:var(--green);">$1.5/时</div></div>
+          </div>
+          <div class="tc-drivers">
+            <div class="tc-driver"><span class="tc-driver-icon">🔬</span>H200/B200 效率大幅提升，单位算力成本每年下降约 30%</div>
+            <div class="tc-driver"><span class="tc-driver-icon">⚔️</span>AMD MI350 + 国产芯片打破垄断，价格战已开始</div>
+            <div class="tc-driver"><span class="tc-driver-icon">🧮</span>推理优化（量化/批处理/Speculative Decoding）提升 GPU 利用率</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tc" onclick="tip('Token 涨价的 Jevons 悖论','什么是 Jevons 悖论？\n英国经济学家 William Stanley Jevons 在 1865 年观察到：蒸汽机效率提升后，煤炭消耗量不减反增，因为更便宜的使用成本刺激了更广泛的应用。\n\nAI 领域的重演：\n・GPT-3.5：$0.002/千 Token（2023）\n・GPT-4 Turbo：$0.01/千 Token（2024）\n・主流模型预估 2028 年：$0.001/千 Token\n单价下降约 20 倍\n\n但同期调用量：\n・企业 AI 渗透率：30% → 80%\n・人均使用频次：20次/天 → 200次/天（含 Agent）\n・单次 Token 量：1000 → 2000（含 Agent 上下文）\n・总倍数：+2.7倍 × +10倍 × +2倍 ≈ +54倍\n\n净效果：单价 ÷20，用量 ×54，总成本 ×2.7。')">
+        <div class="tc-top">
+          <span class="eyebrow eyebrow-red" style="font-size:11px;">💬 Token / 推理</span>
+          <span class="trend-badge trend-up">↑ 总量上升</span>
+          <div class="tc-name">Jevons 悖论：越便宜，用越多</div>
+          <div class="tc-meta">单价 ÷10，调用量 ×27，净涨 2.7 倍</div>
+        </div>
+        <div class="tc-body">
+          <div class="tc-nums">
+            <div class="tc-num"><div class="tc-year">2026 总额</div><div class="tc-price">$18万</div></div>
+            <div class="tc-arrow">→</div>
+            <div class="tc-num"><div class="tc-year">2028 总额</div><div class="tc-price" style="color:var(--red);">$48万</div></div>
+          </div>
+          <div class="tc-drivers">
+            <div class="tc-driver"><span class="tc-driver-icon">📉</span>单价持续下降：MoE 架构 + 小模型崛起 + 云厂商价格战</div>
+            <div class="tc-driver"><span class="tc-driver-icon">🌊</span>用量暴涨：AI 渗透率 × 使用频次 × Agent 链路三重叠加</div>
+            <div class="tc-driver"><span class="tc-driver-icon">⚖️</span>管控要点：分层路由 + 语义缓存是唯一有效的控制手段</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tc" onclick="tip('Agent 执行成本爆发原因','为什么 Agent 成本这么高？\n\n一次普通对话：用户提问 → 模型回答 = 1 次 API 调用\n\n一次中等 Agent 任务（以合同审查为例）：\n1. 解析用户意图（1次）\n2. 制定审查计划（1次）\n3. 分块读取合同文本（3次）\n4. 逐条分析关键条款（5次）\n5. 识别风险点（2次）\n6. 检索法律数据库（3次工具调用）\n7. 对比行业标准（2次）\n8. 生成摘要草稿（1次）\n9. 自我审查修正（2次）\n10. 格式化输出（1次）\n合计约 21 次调用，是普通对话的 21 倍。\n\n规模化：日均 5 万任务 × 21 步 = 105 万次调用/天，月 3.15 亿次，按 $0.001/次 = $31.5 万/月，这还只是调用费，不含 GPU 成本。\n\n2028 年高值情景（30 万任务/天）月成本可超 $150 万。')">
+        <div class="tc-top">
+          <span class="eyebrow eyebrow-purple" style="font-size:11px;">🚀 Agent 执行</span>
+          <span class="trend-badge trend-boom">💥 爆发</span>
+          <div class="tc-name">一次任务 = 10-50 次 API 调用</div>
+          <div class="tc-meta">从零到最大成本项，颠覆定价逻辑</div>
+        </div>
+        <div class="tc-body">
+          <div class="tc-nums">
+            <div class="tc-num"><div class="tc-year">2026</div><div class="tc-price">≈ $0</div></div>
+            <div class="tc-arrow">→</div>
+            <div class="tc-num"><div class="tc-year">2028</div><div class="tc-price" style="color:var(--purple);">$37–150万</div></div>
+          </div>
+          <div class="tc-drivers">
+            <div class="tc-driver"><span class="tc-driver-icon">🔗</span>单任务链路长：规划+执行+验证，每步独立 API 调用</div>
+            <div class="tc-driver"><span class="tc-driver-icon">📊</span>任务量规模化：2028 年日均 Agent 任务量预计达百万级</div>
+            <div class="tc-driver"><span class="tc-driver-icon">💡</span>应对方案：按任务计费（而非 Token）是产品层的根本解法</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tc" onclick="tip('工程调度投入的价值公式','工程调度投入 $45 万/月，能节省多少？\n\n① 语义缓存：\n  - 用户提问中约 20-30% 与之前相似\n  - 缓存命中率 25% → 节省 25% Token 成本\n  - 节省：$48 万 × 25% = $12 万/月\n\n② 分层路由（最核心）：\n  - 评估每个请求复杂度，简单任务 → 小模型（Llama 3.1 8B）\n  - 典型路由结果：70% 走小模型（成本约 1/20），30% 走大模型\n  - 节省：$48 万 × 70% × 95% = $31.9 万/月\n\n③ 配额管理（防止过度使用）：\n  - 防止超级用户无限调用，降低尾部成本 5-10%\n  - 节省：~$5 万/月\n\n总节省：$12 + $31.9 + $5 = ~$49 万/月\n投入：$45 万/月\nROI：正数，首月即回本。')">
+        <div class="tc-top">
+          <span class="eyebrow eyebrow-amber" style="font-size:11px;">🔧 工程 / 调度</span>
+          <span class="trend-badge trend-up">↑ 大幅投入</span>
+          <div class="tc-name">ROI 最高的成本控制投资</div>
+          <div class="tc-meta">每月 $45万 投入可节省 $49万 Token 成本</div>
+        </div>
+        <div class="tc-body">
+          <div class="tc-nums">
+            <div class="tc-num"><div class="tc-year">2026 投入</div><div class="tc-price">$5万</div></div>
+            <div class="tc-arrow">→</div>
+            <div class="tc-num"><div class="tc-year">2028 投入</div><div class="tc-price" style="color:var(--amber);">$45万</div></div>
+          </div>
+          <div class="tc-drivers">
+            <div class="tc-driver"><span class="tc-driver-icon">🗺️</span>分层路由：70% 任务走小模型，节省 30-50% Token 总成本</div>
+            <div class="tc-driver"><span class="tc-driver-icon">🗄️</span>语义缓存：25% 相似请求直接复用，减少重复调用</div>
+            <div class="tc-driver"><span class="tc-driver-icon">📏</span>配额管理：防止超级用户无限消耗，控制长尾成本</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tc" onclick="tip('存储带宽被低估的原因','存储成本在 2026 年几乎不被关注，原因是：\n① 文本数据体积小（1万字 ≈ 10KB）\n② 存储单价低（AWS S3 约 $0.023/GB/月）\n③ 对话历史保留期短\n\n2028 年为何暴涨：\n\n① 多模态输入体积：\n  - 图片分析：1张图片 ≈ 1-10MB\n  - 语音输入：1分钟 ≈ 1MB\n  - 视频摘要：1分钟视频 ≈ 100-500MB\n  - 如果每用户每天进行 5 次多模态交互，人均月数据量从 50MB 飙至 1.5GB\n\n② 合规审计要求：\n  EU AI Act 要求高风险 AI 系统保留完整决策日志；金融监管要求 5 年留存期。每次 AI 调用的完整 I/O 存储，10万用户 × 200次/天 × 平均 5KB/次 = 100GB/天 = 3TB/月。\n\n③ Agent 中间状态：每步工具调用的上下文快照 + 错误日志 + 执行轨迹，平均每任务约 50KB，500万任务/天 = 250GB/天。\n\n合计约 200TB/月，存储成本 $10万/月。')">
+        <div class="tc-top">
+          <span class="eyebrow eyebrow-amber" style="font-size:11px;">💾 存储 / 带宽</span>
+          <span class="trend-badge trend-up">↑ 中幅上涨</span>
+          <div class="tc-name">多模态 + 合规 = 隐形成本杀手</div>
+          <div class="tc-meta">人均从 50MB → 2GB/月，增 40 倍</div>
+        </div>
+        <div class="tc-body">
+          <div class="tc-nums">
+            <div class="tc-num"><div class="tc-year">2026</div><div class="tc-price">$2万</div></div>
+            <div class="tc-arrow">→</div>
+            <div class="tc-num"><div class="tc-year">2028</div><div class="tc-price" style="color:var(--amber);">$10万</div></div>
+          </div>
+          <div class="tc-drivers">
+            <div class="tc-driver"><span class="tc-driver-icon">🖼️</span>多模态：图片/语音/视频体积比文本大 100-10000 倍</div>
+            <div class="tc-driver"><span class="tc-driver-icon">📋</span>合规留存：AI 决策日志需 3-7 年保存，体量以 TB 计</div>
+            <div class="tc-driver"><span class="tc-driver-icon">🤖</span>Agent 快照：每步执行状态记录，500万任务/天 = 250GB/天</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tc" onclick="tip('训练成本分化：为何应用层可以退出？','2026 年：为什么还有企业自训？\n- 领域数据优势（金融/医疗/法律等）被认为需要专属模型\n- 开源模型能力尚弱，GPT-3.5 级别的开源对手不多\n- 企业对"数据不出域"的诉求强，倾向自建\n\n2028 年三大变化让应用层退出：\n① 开源模型成熟：Llama 4/5、Qwen 3/4 等开源模型能力接近 GPT-4 级别，可直接作为基座使用，无需从头训练；\n② LoRA 微调效率：在 8 张 A100 上，只需 1-3 天 + $1-3 万，即可完成领域适配，不需要全量训练；\n③ RAG 成熟：检索增强生成在知识注入效果上不亚于微调，且无需任何训练成本，部署更灵活。\n\n结论：2028 年应用层的智识竞争，将从"谁拥有更好的模型"转向"谁能更高效地检索和组织知识"。训练成本从 P&L 消失，知识工程能力成为新护城河。')">
+        <div class="tc-top">
+          <span class="eyebrow eyebrow-blue" style="font-size:11px;">🧠 模型训练</span>
+          <span class="trend-badge trend-split">± 分化</span>
+          <div class="tc-name">应用层退出训练竞赛</div>
+          <div class="tc-meta">LoRA + RAG 替代全量训练，成本降 90%</div>
+        </div>
+        <div class="tc-body">
+          <div class="tc-nums">
+            <div class="tc-num"><div class="tc-year">2026 应用层</div><div class="tc-price">$10万/月</div></div>
+            <div class="tc-arrow">→</div>
+            <div class="tc-num"><div class="tc-year">2028 应用层</div><div class="tc-price" style="color:var(--green);">~$1万/月</div></div>
+          </div>
+          <div class="tc-drivers">
+            <div class="tc-driver"><span class="tc-driver-icon">📖</span>开源基座成熟：Llama/Qwen/Mistral 能力追平商业模型</div>
+            <div class="tc-driver"><span class="tc-driver-icon">⚡</span>LoRA 效率提升：$1-3 万完成领域适配，替代全量训练</div>
+            <div class="tc-driver"><span class="tc-driver-icon">🔍</span>RAG 成熟：知识注入不再依赖训练，灵活且成本极低</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       S6: CONCLUSION
+  ══════════════════════════════════ -->
+  <div class="section fade-section" id="s-conclusion">
+    <div class="conclusion">
+      <div class="conclusion-grid">
+        <div>
+          <span class="eyebrow" style="background:rgba(255,255,255,.1);color:#93c5fd;">最终结论</span>
+          <h2 style="margin-top:14px;">AI 成本不会归零，<br>但你控制它的方式<br>必须彻底改变</h2>
+          <p class="conclusion-sub">从"选哪家云、买多少 GPU"，转向"如何设计任务链、如何控制使用行为、如何做分层路由"。成本管理，本质上成了产品设计的一部分。</p>
+          <div class="insight-pills">
+            <div class="ip"><span class="ip-icon">📉</span><div>GPU 成本温和下降，但被规模增长抵消，不要指望这项给你省钱。</div></div>
+            <div class="ip"><span class="ip-icon">⚠️</span><div>Token 成本是"最危险的定时炸弹"：单价降，但用量涨更多，总账不降反升。</div></div>
+            <div class="ip"><span class="ip-icon">🚀</span><div>Agent 执行是 2028 年最大变量：从零到最大成本项，将彻底重写你的 P&L。</div></div>
+            <div class="ip"><span class="ip-icon">🔧</span><div>工程调度是 ROI 最高的投资：$45 万投入可节省 $49 万 Token 成本，首月回本。</div></div>
+            <div class="ip"><span class="ip-icon">💡</span><div>产品定价必须进化：从"功能包含 AI"转向"按额度/任务/自动化深度定价"。</div></div>
+          </div>
+        </div>
+        <div>
+          <div style="color:#94a3b8;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:14px;">立即要做的三件事</div>
+          <div class="action-list">
+            <div class="action-item" onclick="tip('建设 AI 成本归因系统','现状诊断：大多数企业对 AI 成本的归因是"模糊的一团"，只知道总 API 费用，不知道哪个功能、哪类用户、哪个部门在消耗。\n\n2024 年应建设：\n① 功能级成本标签：每次 API 调用携带 feature_id、user_segment 标签\n② 用户分层分析：识别 TOP 5% 的高消耗用户，评估其产生的价值是否匹配\n③ 部门成本分摊：对 B2B 产品，成本应分摊到购买方的部门/座位\n④ 实时成本仪表板：超过预算时自动告警\n\n没有成本归因，就没有成本控制的基础。')">
+              <h3>① 立刻建设 AI 成本归因系统</h3>
+              <p>精准知道哪个功能、哪类用户在消耗多少 AI 成本，才有控制的基础。</p>
+            </div>
+            <div class="action-item" onclick="tip('设计分层路由策略','这是性价比最高的成本控制手段。\n\n分层标准（参考）：\n• 简单任务（问答/摘要/翻译）→ 小模型（Llama 3.1 8B / Mistral 7B）\n  成本：$0.0001/千 Token，约是 GPT-4 的 1/100\n• 中等任务（代码生成/分析/结构化输出）→ 中等模型（GPT-4o-mini / Claude Haiku）\n  成本：$0.001/千 Token\n• 复杂任务（多步推理/创意写作/复杂代码）→ 大模型（GPT-4o / Claude Sonnet）\n  成本：$0.01/千 Token\n\n实施效果：典型分布 70% 简单 + 20% 中等 + 10% 复杂，可节省约 60% Token 成本。\n\n注意：需要一个"任务复杂度分类器"作为路由前置，这本身也是一次 API 调用（但用小模型即可）。')">
+              <h3>② 设计并实施分层路由策略</h3>
+              <p>70% 简单任务走小模型，节省 60% Token 成本，是最高 ROI 的工程投入。</p>
+            </div>
+            <div class="action-item" onclick="tip('制定 Agent 计费模型','为什么 Token 计费不适合 Agent 时代？\n- 用户不理解 Token 是什么\n- Agent 任务的 Token 消耗差异极大（10-200 倍）\n- 按 Token 收费让用户产生"被割韭菜"感\n\n更好的 Agent 计费模型选项：\n\n① 按任务类型 × 复杂度分级：\n  简单任务（信息提取）：1 积分\n  中等任务（文档分析）：5 积分\n  复杂任务（多步 Agent 执行）：20 积分\n  积分池定期续充，超出则按积分购买\n\n② 按成功结果计费（最激进）：\n  合同审查通过 → 收取固定费用\n  不关心背后消耗了多少步骤\n  需要强大的质量保障系统\n\n③ 混合模式（最现实）：\n  基础席位 + Agent 任务额度\n  额度内包含，超出按任务计费\n  透明展示任务消耗，建立用户信任')">
+              <h3>③ 为 Agent 时代重新设计定价模型</h3>
+              <p>按任务/积分而非 Token 计费，让用户为结果付费，才能转嫁 Agent 执行成本。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- footer -->
+  <div class="footer">
+    <div>
+      <strong id="ts">加载中...</strong>
+      <div style="margin-top:2px;">AI成本演进 2026→2028 · 数据为示意模型，仅用于趋势分析与策略讨论</div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-weight:700;color:var(--text);">v4.0 · single-html-viz</div>
+      <div>© 2026 AI Cost Analysis</div>
+    </div>
+  </div>
+
+</div><!-- /wrap -->
+
+<script>
+// ── progress bar ──
+window.addEventListener('scroll',()=>{
+  const pct = window.scrollY/(document.documentElement.scrollHeight-window.innerHeight)*100;
+  document.getElementById('pb').style.width=pct+'%';
+});
+
+// ── timestamp ──
+(()=>{
+  const n=new Date(),p=v=>String(v).padStart(2,'0');
+  document.getElementById('ts').textContent=
+    `生成时间：${n.getFullYear()}-${p(n.getMonth()+1)}-${p(n.getDate())} ${p(n.getHours())}:${p(n.getMinutes())}:${p(n.getSeconds())} 北京时间`;
+})();
+
+// ── overlay ──
+function tip(title,body){
+  document.getElementById('ol-title').textContent=title;
+  document.getElementById('ol-body').textContent=body;
+  document.getElementById('overlay').classList.add('on');
+  document.body.style.overflow='hidden';
+}
+function closeOverlay(){
+  document.getElementById('overlay').classList.remove('on');
+  document.body.style.overflow='';
+}
+document.getElementById('overlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeOverlay();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeOverlay();});
+
+// ── fade sections on scroll ──
+const sections=document.querySelectorAll('.fade-section');
+const io=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting)e.target.classList.add('visible');
+  });
+},{threshold:0.08});
+sections.forEach(s=>io.observe(s));
+
+// ── bar animations ──
+const barIo=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.querySelectorAll('.bar-fill-26,.bar-fill-28').forEach(b=>b.classList.add('anim'));
+      e.target.querySelectorAll('.seg-bar').forEach(b=>{b.style.width=b.style.getPropertyValue('--tw')||b.getAttribute('style').match(/--tw:([^;]+)/)?.[1]||'0%';});
+    }
+  });
+},{threshold:0.2});
+document.querySelectorAll('.ex-bar-wrap').forEach(el=>barIo.observe(el));
+
+// also animate seg bars when pie-row is visible
+const pieIo=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.querySelectorAll('.seg-bar').forEach(b=>{
+        const m=b.getAttribute('style').match(/--tw:([^;%]+%?)/);
+        if(m)setTimeout(()=>{b.style.width=m[1].trim();},100);
+      });
+    }
+  });
+},{threshold:0.1});
+document.querySelectorAll('.pie-row').forEach(el=>pieIo.observe(el));
+</script>
+</body>
+</html>
