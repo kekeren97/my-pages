@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WPS 365 加价购策略全景分析</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap');
+:root{--bg:#0a0e1a;--card:#111827;--row:#0f1629;--row2:#131b30;--hover:#1a2340;--bd:#1e2a45;--bd2:#2a3a5c;--t1:#e8edf5;--t2:#8b95a8;--t3:#5a6478;--green:#34d399;--red:#f87171;--blue:#60a5fa;--amber:#fbbf24;--purple:#a78bfa;--cyan:#22d3ee;--pink:#f472b6;--green-bg:rgba(52,211,153,.08);--blue-bg:rgba(96,165,250,.08);--amber-bg:rgba(251,191,36,.08);--purple-bg:rgba(167,139,250,.08);--cyan-bg:rgba(34,211,238,.08);--pink-bg:rgba(244,114,182,.08);--red-bg:rgba(248,113,113,.06)}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{font-family:'Noto Sans SC',sans-serif;background:var(--bg);color:var(--t1);font-size:13px;line-height:1.6}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:3px}
+.header{position:fixed;top:0;left:0;right:0;z-index:100;height:56px;background:rgba(10,14,26,.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--bd);display:flex;align-items:center;padding:0 32px;gap:16px}
+.logo{font-size:18px;font-weight:900;background:linear-gradient(135deg,#60a5fa,#a78bfa,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.header-sub{color:var(--t2);font-size:13px}
+.header-r{margin-left:auto;display:flex;gap:8px}
+.np{padding:5px 14px;border-radius:20px;border:1px solid var(--bd);background:none;color:var(--t2);font-size:11.5px;cursor:pointer;font-family:inherit;transition:all .2s;text-decoration:none}
+.np:hover,.np.active{border-color:var(--blue);color:var(--blue);background:var(--blue-bg)}
+.main{max-width:1200px;margin:72px auto 60px;padding:0 28px}
+.sec{margin-bottom:48px;scroll-margin-top:72px}
+.sec-title{font-size:20px;font-weight:900;margin-bottom:6px}
+.sec-sub{font-size:13px;color:var(--t2);margin-bottom:24px}
+.sum-bar{display:flex;gap:8px;align-items:center;padding:14px 20px;background:var(--card);border:1px solid var(--bd);border-radius:10px;margin-bottom:24px;flex-wrap:wrap;font-size:12px;color:var(--t2)}
+.dt{width:100%;border-collapse:separate;border-spacing:0;border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:24px}
+.dt th{background:var(--card);padding:10px 14px;font-size:11.5px;font-weight:600;color:var(--t2);text-align:left;border-bottom:1px solid var(--bd)}
+.dt td{padding:10px 14px;font-size:12px;border-bottom:1px solid rgba(30,42,69,.5);vertical-align:top}
+.dt tr:nth-child(odd) td{background:var(--row)}.dt tr:nth-child(even) td{background:var(--row2)}.dt tr:hover td{background:var(--hover)}
+.chip{display:inline-block;font-size:10px;padding:2px 8px;border-radius:6px;font-weight:600}
+.chip-wps{background:var(--cyan-bg);color:var(--cyan)}
+.chip-no{background:var(--red-bg);color:var(--red)}
+
+/* Package cards */
+.pkg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px;margin-bottom:16px}
+.pkg-card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:20px;cursor:pointer;transition:all .3s}
+.pkg-card:hover{border-color:var(--bd2);transform:translateY(-4px);box-shadow:0 16px 48px rgba(0,0,0,.3)}
+.pkg-icon{font-size:28px;margin-bottom:12px}
+.pkg-name{font-size:15px;font-weight:700;margin-bottom:4px}
+.pkg-price{font-size:13px;font-weight:700;margin-bottom:10px}
+.pkg-desc{font-size:11.5px;color:var(--t2);line-height:1.6;margin-bottom:12px}
+.pkg-items{font-size:11px;color:var(--t3);line-height:1.7}
+.pkg-items span{display:block;padding-left:12px;position:relative}
+.pkg-items span::before{content:'›';position:absolute;left:0}
+.pkg-from{font-size:10px;margin-top:12px;padding-top:10px;border-top:1px solid var(--bd);color:var(--t3)}
+.pkg-cta{display:block;margin-top:12px;font-size:11px;text-align:center;padding:7px;border-radius:8px;font-weight:600}
+.pkg-card[data-g="1"] .pkg-price{color:var(--amber)}.pkg-card[data-g="1"] .pkg-cta{background:var(--amber-bg);color:var(--amber);border:1px solid rgba(251,191,36,.2)}
+.pkg-card[data-g="2"] .pkg-price{color:var(--pink)}.pkg-card[data-g="2"] .pkg-cta{background:var(--pink-bg);color:var(--pink);border:1px solid rgba(244,114,182,.2)}
+
+/* ===== MAPPING: card-per-package, 3-col inside ===== */
+.cmp{background:var(--card);border:1px solid var(--bd);border-radius:14px;margin-bottom:20px;overflow:hidden}
+.cmp-h{display:flex;align-items:center;gap:14px;padding:18px 24px;border-bottom:1px solid var(--bd);cursor:pointer;transition:background .2s}
+.cmp-h:hover{background:var(--hover)}
+.cmp-ico{font-size:22px}.cmp-t{font-size:15px;font-weight:700;flex:1}.cmp-p{font-size:13px;font-weight:700;color:var(--amber)}
+.cmp-arr{color:var(--t3);font-size:12px;transition:transform .3s;margin-left:8px}.cmp-arr.open{transform:rotate(180deg)}
+.cmp-b{display:none}.cmp-b.open{display:block}
+
+.cmp-cols{display:grid;grid-template-columns:1fr 1fr 1fr}
+.cmp-col{padding:20px 24px;border-right:1px solid var(--bd)}
+.cmp-col:last-child{border-right:none}
+.cmp-cl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.cmp-cl .cdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.cmp-cn{font-size:14px;font-weight:700;margin-bottom:3px}
+.cmp-cp{font-size:12px;color:var(--amber);margin-bottom:5px}
+.cmp-cb{font-size:10.5px;color:var(--t3);margin-bottom:12px;line-height:1.5;padding:6px 10px;background:var(--bg);border-radius:6px}
+.cmp-cf{font-size:11.5px;color:var(--t2);line-height:1.8;list-style:none}
+.cmp-cf li{padding-left:14px;position:relative}
+.cmp-cf li::before{content:'›';position:absolute;left:0;color:var(--t3)}
+
+.cmp-ins{padding:18px 24px;background:var(--amber-bg);border-top:1px solid rgba(251,191,36,.1)}
+.cmp-ins-t{font-size:11px;font-weight:700;color:var(--amber);margin-bottom:6px}
+.cmp-ins-b{font-size:12px;color:var(--t2);line-height:1.7}.cmp-ins-b strong{color:var(--t1)}
+
+@media(max-width:900px){.pkg-grid{grid-template-columns:1fr}.cmp-cols{grid-template-columns:1fr}.cmp-col{border-right:none;border-bottom:1px solid var(--bd)}.cmp-col:last-child{border-bottom:none}}
+@media(max-width:600px){.main{padding:0 16px}.header{padding:0 16px}}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="logo">WPS 365</div>
+  <div class="header-sub">加价购策略全景分析</div>
+  <div class="header-r">
+    <a class="np active" href="#gap1">高级→旗舰差</a>
+    <a class="np" href="#gap2">旗舰→企旗差</a>
+    <a class="np" href="#packages">加价购方案</a>
+    <a class="np" href="#mapping">竞品对标</a>
+  </div>
+</div>
+<div class="main">
+
+<!-- GAP 1 -->
+<div class="sec" id="gap1">
+<div class="sec-title">商业高级版 → 商业旗舰版：43 项权益差</div>
+<div class="sec-sub">+¥200/用户/年 解锁的全部能力，按价值领域分类</div>
+<div class="sum-bar">
+  <span style="color:var(--amber)">🤖 AI智能办公 22项</span> ·
+  <span style="color:var(--red)">🔒 安全管控 7项</span> ·
+  <span style="color:var(--blue)">🔌 开发者API 5项</span> ·
+  <span style="color:var(--green)">📹 会议/配额 9项</span>
+</div>
+<table class="dt"><thead><tr><th style="width:100px">价值领域</th><th style="width:50px">项数</th><th>核心差异项</th><th style="width:90px">加价购?</th></tr></thead><tbody>
+<tr><td style="color:var(--amber);font-weight:700">🤖 AI智能办公</td><td>22</td><td>写作助手(AI伴写/灵感市集) · 阅读助手(总结/问答/翻译/脑图/目录) · 设计助手(AI生成PPT/图表解读) · 分析助手(AI写公式/条件格式) · AI Hub + AI使用分析 · 内容智能抽取</td><td><span class="chip chip-wps">✔ 强推荐</span></td></tr>
+<tr><td style="color:var(--red);font-weight:700">🔒 安全管控</td><td>7</td><td>IP管控 · 专属访问域名 · 设备管控 · 团队水印/加密/分享管控升至不限</td><td><span class="chip chip-wps">✔ 推荐</span></td></tr>
+<tr><td style="color:var(--blue);font-weight:700">🔌 开发者API</td><td>5</td><td>赋能业务接口全量 · weboffice(20并发/20M) · 格式转换API(3000次) · PDF/图片转换(3000页)</td><td><span class="chip chip-wps">✔ 推荐</span></td></tr>
+<tr><td style="color:var(--green);font-weight:700">📹 会议/配额</td><td>9</td><td>会议时长600→1200分钟 · 方数100→200 · Win/Linux二选一→全含 · 存储365G→2T · AI配额升级 · 日志追溯6月→1年</td><td><span class="chip chip-no">不拆卖</span></td></tr>
+</tbody></table>
+</div>
+
+<!-- GAP 2 -->
+<div class="sec" id="gap2">
+<div class="sec-title">商业旗舰版 → 企业旗舰版：15 项权益差 + IAM 17 项</div>
+<div class="sec-sub">+¥1,000/用户/年 解锁的企业级能力</div>
+<div class="sum-bar">
+  <span style="color:var(--cyan)">🪪 IAM身份治理 17项</span> ·
+  <span style="color:var(--pink)">🛡️ DLP防泄漏 3项</span> ·
+  <span style="color:var(--purple)">📊 配额/增值/存储 9项</span> ·
+  <span style="color:var(--green)">📹 会议增强 2项</span>
+</div>
+<table class="dt"><thead><tr><th style="width:100px">价值领域</th><th style="width:50px">项数</th><th>核心差异项</th><th style="width:90px">加价购?</th></tr></thead><tbody>
+<tr><td style="color:var(--cyan);font-weight:700">🪪 IAM身份治理</td><td>17</td><td>账号生命周期 · 多维组织架构 · SSO(OAuth/OIDC/CAS) · 上下游同步(SCIM) · 登录管控 · 门户定制 · AI/Agent身份授权 · 第三方IDP · 审计日志</td><td><span class="chip chip-wps">✔ 强推荐</span></td></tr>
+<tr><td style="color:var(--pink);font-weight:700">🛡️ DLP防泄漏</td><td>3</td><td>密级标签 · 敏感成员名片字段可见性 · 文件管理</td><td><span class="chip chip-wps">✔ 推荐</span></td></tr>
+<tr><td style="color:var(--purple);font-weight:700">📊 配额/增值/存储</td><td>9</td><td>AI配额全面升级 · WPS素材库 · 电子签 · 翻译翻倍 · 存储2T→5T · 上传10G→20G</td><td><span class="chip chip-no">不拆卖</span></td></tr>
+<tr><td style="color:var(--green);font-weight:700">📹 会议增强</td><td>2</td><td>月时长1200→1800分钟 · 方数200→500方</td><td><span class="chip chip-no">不拆卖</span></td></tr>
+</tbody></table>
+</div>
+
+<!-- PACKAGES -->
+<div class="sec" id="packages">
+<div class="sec-title">建议封装的 5 个加价购包</div>
+<div class="sec-sub">按客户购买意愿强度排序，点击卡片查看微软/飞书对标详情</div>
+<div style="font-size:12px;color:var(--t2);margin-bottom:16px;padding:12px 16px;background:var(--card);border:1px solid var(--bd);border-radius:10px">
+  <strong style="color:var(--amber)">来自"高级版→旗舰版"差 (¥200):</strong> ① AI智能办公包 · ② 安全管控包 · ③ 开发者API包
+  &nbsp;&nbsp;<strong style="color:var(--pink)">来自"旗舰版→企旗版"差 (¥1,000):</strong> ④ IAM身份治理包 · ⑤ DLP数据防泄漏包
+</div>
+<div class="pkg-grid">
+
+<div class="pkg-card" data-g="1" onclick="location.href='#m-ai'">
+<div class="pkg-icon">🤖</div><div class="pkg-name">① AI 智能办公包</div>
+<div class="pkg-price">建议 ¥150-200/用户/年</div>
+<div class="pkg-desc">22项AI能力打包，覆盖文档全生命周期智能化。<strong style="color:var(--t1)">高级→旗舰 75% 的价值差来源。</strong></div>
+<div class="pkg-items"><span>写作助手 (AI伴写/灵感市集)</span><span>阅读助手 (总结/问答/翻译/脑图)</span><span>设计助手 (AI生成PPT/图表解读)</span><span>分析助手 (AI写公式/条件格式)</span><span>AI Hub + AI使用分析助手</span></div>
+<div class="pkg-from">从版本差提取：高级版(¥399)→旗舰版(¥599)</div>
+<div class="pkg-cta">↓ 滚动到对标详情</div>
+</div>
+
+<div class="pkg-card" data-g="1" onclick="location.href='#m-sec'">
+<div class="pkg-icon">🔒</div><div class="pkg-name">② 安全管控包</div>
+<div class="pkg-price">建议 ¥80-120/用户/年</div>
+<div class="pkg-desc">终端和网络管控。<strong style="color:var(--t1)">"只要安全不要AI"的政企客户精准切面。</strong></div>
+<div class="pkg-items"><span>IP 管控 (限制访问来源)</span><span>设备管控 (限制终端类型)</span><span>专属访问域名</span><span>团队水印/加密/分享管控升至不限</span></div>
+<div class="pkg-from">从版本差提取：高级版(¥399)→旗舰版(¥599)</div>
+<div class="pkg-cta">↓ 滚动到对标详情</div>
+</div>
+
+<div class="pkg-card" data-g="1" onclick="location.href='#m-api'">
+<div class="pkg-icon">🔌</div><div class="pkg-name">③ 开发者 API 包</div>
+<div class="pkg-price">建议 ¥100-150/用户/年</div>
+<div class="pkg-desc">weboffice嵌入 + 文档格式转换能力。<strong style="color:var(--t1)">ISV/SaaS 厂商愿意单独为此付费。</strong></div>
+<div class="pkg-items"><span>赋能业务接口全量开放</span><span>weboffice在线编辑(20并发/20M)</span><span>多文档格式转换API (3000次/企业)</span><span>PDF/图片转换API (3000页/企业)</span></div>
+<div class="pkg-from">从版本差提取：高级版(¥399)→旗舰版(¥599)</div>
+<div class="pkg-cta">↓ 滚动到对标详情</div>
+</div>
+
+<div class="pkg-card" data-g="2" onclick="location.href='#m-iam'">
+<div class="pkg-icon">🪪</div><div class="pkg-name">④ IAM 身份治理包</div>
+<div class="pkg-price">建议 ¥200-280/用户/年（含SSO+同步+登录管控）</div>
+<div class="pkg-desc">SSO + 目录同步 + 基础登录管控。<strong style="color:var(--t1)">客户粘性最强的加价购项。</strong></div>
+<div class="pkg-items"><span>SSO协议接入 (OAuth/OIDC/CAS)</span><span>上下游目录同步 (API/SCIM)</span><span>登录方式管控 + 统一登出</span><span>可拆卖为3个子包</span></div>
+<div class="pkg-from">从版本差提取：旗舰版(¥599)→企业旗舰版(¥1,599)</div>
+<div class="pkg-cta">↓ 滚动到对标详情</div>
+</div>
+
+<div class="pkg-card" data-g="2" onclick="location.href='#m-dlp'">
+<div class="pkg-icon">🛡️</div><div class="pkg-name">⑤ DLP 数据防泄漏包</div>
+<div class="pkg-price">建议 ¥80-120/用户/年</div>
+<div class="pkg-desc">密级分类+敏感信息管控。<strong style="color:var(--t1)">金融/政企合规必选项。</strong></div>
+<div class="pkg-items"><span>密级标签 (文档分级分类)</span><span>敏感成员名片字段可见性</span><span>文件管理 (集中管控)</span></div>
+<div class="pkg-from">从版本差提取：旗舰版(¥599)→企业旗舰版(¥1,599)</div>
+<div class="pkg-cta">↓ 滚动到对标详情</div>
+</div>
+
+</div>
+</div>
+
+<!-- ===== MAPPING ===== -->
+<div class="sec" id="mapping">
+<div class="sec-title">加价购包 · 竞品对标全景</div>
+<div class="sec-sub">展开每个包查看 WPS / Microsoft / 飞书 三方对照</div>
+
+<!-- AI -->
+<div class="cmp" id="m-ai"><div class="cmp-h" onclick="tog('ai')"><span class="cmp-ico">🤖</span><span class="cmp-t">① AI 智能办公包</span><span class="cmp-p">¥150-200/用户/年</span><span class="cmp-arr" id="arr-ai">▼</span></div>
+<div class="cmp-b" id="bd-ai">
+<div class="cmp-cols">
+  <div class="cmp-col"><div class="cmp-cl"><span class="cdot" style="background:var(--cyan)"></span>WPS 365 加价购</div><div class="cmp-cn">AI 智能办公包</div><div class="cmp-cp">¥150-200/用户/年</div><div class="cmp-cb">适用：商业高级版(¥399)·商业旗舰版(¥599) 加购<br>企业高级版(¥1,099)及以上已全含</div><ul class="cmp-cf"><li>写作助手 (AI伴写/灵感市集)</li><li>阅读助手 (总结/问答/翻译/脑图/目录)</li><li>设计助手 (AI生成PPT/图表解读)</li><li>分析助手 (AI写公式/条件格式)</li><li>AI Hub + AI使用分析助手</li><li>内容智能抽取 (50页*购买人数)</li></ul></div>
+  <div class="cmp-col"><div class="cmp-cl"><span class="cdot" style="background:var(--blue)"></span>Microsoft 365</div><div class="cmp-cn">Copilot for M365</div><div class="cmp-cp">$30/用户/月 ($360/年)</div><div class="cmp-cb">纯加价购，不含在任何 E3/E5 套餐中<br>Copilot Chat 免费含在 M365（轻量版）</div><ul class="cmp-cf"><li>Word/Excel/PPT/Outlook 内嵌AI</li><li>Teams 会议智能摘要</li><li>基于 Microsoft Graph 的企业数据理解</li><li>Copilot Studio 构建自定义Agent</li><li>含 Copilot for Sales/Service/Finance</li></ul></div>
+  <div class="cmp-col"><div class="cmp-cl"><span class="cdot" style="background:var(--green)"></span>飞书 Feishu</div><div class="cmp-cn">飞书 AI 版本</div><div class="cmp-cp">4个AI版本独立售卖</div><div class="cmp-cb">AI基础/企业/企业Plus/旗舰 — 完全独立于协作套餐<br>智能纪要+Aily可单独购买用量</div><ul class="cmp-cf"><li>知识问答（企业专属AI问答）</li><li>智能会议纪要（可单独买用量）</li><li>飞书Aily（AI Agent，可单独买）</li><li>AI辅助写作/表格/多维表格</li><li>AI额度按点数消耗制</li></ul></div>
+</div>
+<div class="cmp-ins"><div class="cmp-ins-t">💡 定价策略洞察</div><div class="cmp-ins-b"><strong>三家都将 AI 做成独立售卖</strong>——微软和飞书都不把 AI 捆绑在协作套餐里。WPS 目前将 AI 绑定在旗舰版是反行业趋势的。建议拆出独立售卖，用低价(<strong>¥150≈$21，仅 Copilot 的 1/17</strong>)抢渗透率。飞书的 AI 额度"点数消耗制"比 WPS 当前的"次数*购买人数"更灵活，也更容易创造超额消费收入，值得参考。</div></div>
+</div></div>
+
+<!-- Security -->
+<div class="cmp" id="m-sec"><div class="cmp-h" onclick="tog('sec')"><span class="cmp-ico">🔒</span><span class="cmp-t">② 安全管控包</span><span class="cmp-p">¥80-120/用户/年</span><span class="cmp-arr" id="arr-sec">▼</span></div>
+<div class="cmp-b" id="bd-sec">
+<div class="cmp-cols">
+  <div class="cmp-col"><div class="cmp-cl"><span class="cdot" style="background:var(--cyan)"></span>WPS 365 加价购</div><div class="cmp-cn">安全管控包</div><div class="cmp-cp">¥80-120/用户/年</div><div class="cmp-cb">适用：商业高级版(¥399) 加购<br>旗舰版(¥599)及以上已全含</div><ul class="cmp-cf"><li>IP 管控 (限制访问来源)</li><li>设备管控 (限制终端类型)</li><li>专属访问域名</li><li>团队水印/加密/分享管控升至不限</li></ul></div>
+  <div class="cmp-col"><div class="cmp-cl"><span class="cdot" style="background:var(--blue)"></span>Microsoft 365</div><div class="cmp-cn">Intune + Entra 条件访问</div><div class="cmp-cp">含在 E3 ($36/月) / Intune独立 $8/月</div><div class="cmp-cb">E3起全含，2025年底新增 Intune Remote Help、高级分析入 E3</div><ul class="cmp-cf"><li>设备合规性检查与管控</li><li>应用保护策略(MAM)</li><li>条件访问策略(位置/设备/风险)</li><li>远程擦除与锁定</li><li>Intune高级分析(2025新增)</li></ul></div>
+  <div class="cmp-col"><div class="cmp-cl"><span class="cdot" style="background:var(--green)"></span>飞书 Feishu</div><div class="cmp-cn">企业版安全功能</div><div class="cmp-cp">含在企业版套餐内（不单卖）</div><div class="cmp-cb">IP限制/设备管理/水印等捆入企业版，商业版无</div><ul class="cmp-cf"><li>IP 访问限制</li><li>设备管理与授信</li><li>文档水印与权限管控</li><li>登录安全策略</li></ul></div>
+</div>
+<div class="cmp-ins"><div class="cmp-ins-t">💡 定价策略洞察</div><div class="cmp-ins-b">微软将安全管控<strong>捆入 E3 不单卖</strong>，飞书也捆入企业版。但 WPS 有独特机会——<strong>¥399 客户里有大量"只要安全不要AI"的政企客户</strong>，这个画像在微软/飞书生态里没有低价对应物。安全包追求客单价而非渗透率（合规驱动、价格不敏感），建议定价偏上限 ¥120/用户/年。</div></div>
+</div></div>
+
+<!-- API -->
+<div class="cmp" id="m-api"><div class="cmp-h" onclick="tog('api')"><span class="cmp-ico">🔌</span><span class="cmp-t">③ 开发者 API 包</span><span class="cmp-p">¥100-150/用户/年</span><span class="cmp-arr" id="arr-api">▼</span></div>
+<div class="cmp-b" id="bd-api">
+<div class="cmp-cols">
+  <div class="cmp-col"><div class="cmp-cl"><span class="cdot" style="background:var(--cyan)"></span>WPS 365 加价购</div><div class="cmp-cn">开发者 API 包</div><div class="cmp-cp">¥100-150/用户/年</div><div class="cmp-cb">适用：商业高级版(¥399) 加购<br>旗舰版(¥599)及以上已全含</div><ul class="cmp-cf"><li>赋能业务接口全量开放</li><li>weboffice在线编辑(20并发/20M)</li><li>多文档格式转换API (3000次/企业)</li><li>PDF/图片转换API (3000页/企业)</li></ul></div>
+  <div class="cmp-col"><div class="cmp-cl"><span class="cdot" style="background:var(--blue)"></span>Microsoft 365</div><div class="cmp-cn">Graph API + Power Platform</div><div class="cmp-cp">Graph含在E3/E5 · PP连接器另购 $20-40/月</div><div class="cmp-cb">基础API无限调用含在E3，高级连接器需Premium许可</div><ul class="cmp-cf"><li>Graph API (邮件/日历/文件/用户)</li><li>SharePoint REST API</li><li>Power Automate 连接器</li><li>Power Apps 自定义应用</li><li>Azure Logic Apps 集成</li></ul></div>
+  <div class="cmp-col"><div class="cmp-cl"><span class="cdot" style="background:var(--green)"></span>飞书 Feishu</div><div class="cmp-cn">开放平台 API</div><div class="cmp-cp">按版本逐级放开调用限制</div><div class="cmp-cb">基础版有限制，商业版/企业版逐级放开</div><ul class="cmp-cf"><li>消息/群组/日历/审批 API</li><li>多维表格 API</li><li>机器人与应用开发</li><li>Webhook 事件订阅</li></ul></div>
+</div>
+<div class="cmp-ins"><div class="cmp-ins-t">💡 定价策略洞察</div><div class="cmp-ins-b">WPS 的 <strong>weboffice 嵌入能力是微软/飞书没有直接对标的差异化卖点</strong>——让第三方应用内嵌 WPS 编辑器，SharePoint 的文档嵌入只支持自家格式。ISV/SaaS 厂商愿意单独付费。此外，格式转换 API(3000次/企业) 用完后客户会主动购买增量包——这是经典的"用量陷阱"(usage trap)商业模式。</div></div>
+</div></div>
+
+<!-- IAM -->
+<div class="cmp" id="m-iam"><div class="cmp-h" onclick="tog('iam')"><span class="cmp-ico">🪪</span><span class="cmp-t">④ IAM 身份治理包</span><span class="cmp-p">¥200-280/用户/年</span><span class="cmp-arr" id="arr-iam">▼</span></div>
+<div class="cmp-b" id="bd-iam">
+<div class="cmp-cols">
+  <div class="cmp-col"><div class="cmp-cl"><span class="cdot" style="background:var(--cyan)"></span>WPS 365 加价购</div><div class="cmp-cn">IAM 身份治理包</div><div class="cmp-cp">¥200-280/用户/年（含SSO+同步+登录管控）</div><div class="cmp-cb">适用：商业高级版(¥399)·旗舰版(¥599) 加购<br>企业高级版(¥1,099)及以上已全含<br>可拆为3子包：SSO¥100-150 + 同步¥80-120 + 登录安全¥60-80</div><ul class="cmp-cf"><li>SSO协议接入 (OAuth/OIDC/CAS)</li><li>上下游目录同步 (API/SCIM)</li><li>登录方式管控 + 统一登出</li><li>账号全生命周期管理 (基础)</li></ul></div>
+  <div class="cmp-col"><div class="cmp-cl"><span class="cdot" style="background:var(--blue)"></span>Microsoft 365</div><div class="cmp-cn">Entra ID P1/P2 + Governance</div><div class="cmp-cp">P1=$6/月 · P2=$9/月 · Governance=$7/月加价购</div><div class="cmp-cb">P1含在E3 · P2含在E5 · Governance始终纯加价购</div><ul class="cmp-cf"><li>SSO无限应用 + 条件访问 (P1)</li><li>身份保护+风险检测+PIM (P2)</li><li>生命周期工作流+权利管理 (Gov)</li><li>AD Connect 混合身份同步</li><li>SCIM 自动配置</li></ul></div>
+  <div class="cmp-col"><div class="cmp-cl"><span class="cdot" style="background:var(--green)"></span>飞书 Feishu</div><div class="cmp-cn">企业版身份管理</div><div class="cmp-cp">含在企业版套餐内（不单卖）</div><div class="cmp-cb">SSO/SCIM/自动化全部捆入企业版</div><ul class="cmp-cf"><li>SSO 单点登录</li><li>SCIM 自动配置</li><li>组织架构自动同步</li><li>审批流 + 入离职自动化</li></ul></div>
+</div>
+<div class="cmp-ins"><div class="cmp-ins-t">💡 定价策略洞察</div><div class="cmp-ins-b">微软的 IAM 分层是教科书级"阶梯上瘾"模型：P1 含在 E3 拉升级，P2 含在 E5 再拉，但 <strong>Governance 始终是纯加价购($7/月)——因为治理合规只有特定行业需要</strong>。飞书则全部捆入企业版逼升级。WPS 走加价购更适合中国市场——<strong>政企预算审批流程长，"¥399+¥200"比一次性跳到¥1,599更容易批下来</strong>。SSO接入后迁移成本极高，续购率接近100%。</div></div>
+</div></div>
+
+<!-- DLP -->
+<div class="cmp" id="m-dlp"><div class="cmp-h" onclick="tog('dlp')"><span class="cmp-ico">🛡️</span><span class="cmp-t">⑤ DLP 数据防泄漏包</span><span class="cmp-p">¥80-120/用户/年</span><span class="cmp-arr" id="arr-dlp">▼</span></div>
+<div class="cmp-b" id="bd-dlp">
+<div class="cmp-cols">
+  <div class="cmp-col"><div class="cmp-cl"><span class="cdot" style="background:var(--cyan)"></span>WPS 365 加价购</div><div class="cmp-cn">DLP 数据防泄漏包</div><div class="cmp-cp">¥80-120/用户/年</div><div class="cmp-cb">适用：商业旗舰版(¥599) 加购<br>企业旗舰版(¥1,599)已全含</div><ul class="cmp-cf"><li>密级标签 (文档分级分类)</li><li>敏感成员名片字段可见性</li><li>文件管理 (集中管控)</li></ul></div>
+  <div class="cmp-col"><div class="cmp-cl"><span class="cdot" style="background:var(--blue)"></span>Microsoft 365</div><div class="cmp-cn">Purview 信息保护 + DLP</div><div class="cmp-cp">含在E5 ($57/月) 或 E3加购 $12/月</div><div class="cmp-cb">E5全含 · E3可加购Purview · Audit另购</div><ul class="cmp-cf"><li>敏感度标签(密级分类)</li><li>数据丢失防护策略(DLP)</li><li>内容搜索与电子数据展示</li><li>信息屏障</li><li>审计日志(标准90天/高级1年)</li></ul></div>
+  <div class="cmp-col"><div class="cmp-cl"><span class="cdot" style="background:var(--green)"></span>飞书 Feishu</div><div class="cmp-cn">企业版信息安全</div><div class="cmp-cp">含在企业版套餐内（不单卖）</div><div class="cmp-cb">水印/权限/审计含在企业版，密级标签能力有限</div><ul class="cmp-cf"><li>文档水印与权限管控</li><li>敏感信息检测</li><li>操作审计日志</li><li>IP/设备访问限制</li></ul></div>
+</div>
+<div class="cmp-ins"><div class="cmp-ins-t">💡 定价策略洞察</div><div class="cmp-ins-b">微软把 DLP 放在最贵的 E5 或作为 E3 加价购($12/月=$144/年)——<strong>愿意为DLP付费的客户（金融/政企/医疗）价格敏感度最低</strong>。WPS ¥80-120 远低于 Purview，主打"轻量DLP，够用就好"。<strong>密级标签是中国政企特有的强需求</strong>（等保2.0/密评要求），飞书在这个维度没有竞争力，WPS可以用它作为DLP包的核心卖点和政企项目的准入门票。</div></div>
+</div></div>
+
+</div>
+</div>
+
+<script>
+function tog(k){
+  const b=document.getElementById('bd-'+k),a=document.getElementById('arr-'+k);
+  b.classList.toggle('open');a.classList.toggle('open');
+}
+// Auto-open first card
+tog('ai');
+</script>
+</body>
+</html>
